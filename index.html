@@ -1,0 +1,1179 @@
+<title>Referral Program Portal</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@500&display=swap">
+<style>
+:root{
+  --ground:#F1F6F5; --surface:#FFFFFF; --surface-2:#F6FAF9; --ink:#15303E; --ink-2:#4B6370; --ink-3:#7B9099;
+  --line:#DAE5E2; --line-2:#C6D6D2;
+  --teal:#12A584; --teal-ink:#0A7560; --teal-soft:#DFF4EE; --on-teal:#FFFFFF;
+  --navy:#1B3444; --on-navy:#EAF3F1;
+  --blue:#1D5FB8; --blue-soft:#E4EDFA; --green:#1E8455; --green-soft:#E1F2E8;
+  --amber:#9A6412; --amber-soft:#FBF0DA; --red:#B63A2C; --red-soft:#FBE5E1; --grey-soft:#EDF1F1;
+  --shadow:0 1px 2px rgba(21,48,62,.06),0 8px 24px -12px rgba(21,48,62,.18);
+  --radius:12px;
+  --sans:"Plus Jakarta Sans",ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    color-scheme:dark;
+    --ground:#0E181E; --surface:#15232B; --surface-2:#1A2B34; --ink:#E4EEEC; --ink-2:#A0B5BC; --ink-3:#768D95;
+    --line:#26404A; --line-2:#335260;
+    --teal:#2DC7A2; --teal-ink:#63DDBF; --teal-soft:#123A32; --on-teal:#06231C;
+    --navy:#0A141A; --on-navy:#E4EEEC;
+    --blue:#86B1F2; --blue-soft:#182C46; --green:#6BCF97; --green-soft:#15332A;
+    --amber:#E9B865; --amber-soft:#3A2D14; --red:#F2928A; --red-soft:#3D1F1C; --grey-soft:#1F3039;
+    --shadow:0 1px 2px rgba(0,0,0,.3),0 10px 28px -14px rgba(0,0,0,.6);
+  }
+}
+:root[data-theme="dark"]{
+  color-scheme:dark;
+  --ground:#0E181E; --surface:#15232B; --surface-2:#1A2B34; --ink:#E4EEEC; --ink-2:#A0B5BC; --ink-3:#768D95;
+  --line:#26404A; --line-2:#335260;
+  --teal:#2DC7A2; --teal-ink:#63DDBF; --teal-soft:#123A32; --on-teal:#06231C;
+  --navy:#0A141A; --on-navy:#E4EEEC;
+  --blue:#86B1F2; --blue-soft:#182C46; --green:#6BCF97; --green-soft:#15332A;
+  --amber:#E9B865; --amber-soft:#3A2D14; --red:#F2928A; --red-soft:#3D1F1C; --grey-soft:#1F3039;
+  --shadow:0 1px 2px rgba(0,0,0,.3),0 10px 28px -14px rgba(0,0,0,.6);
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html,body{margin:0}
+body{background:var(--ground);color:var(--ink);font:15px/1.55 var(--sans);-webkit-font-smoothing:antialiased}
+h1,h2,h3{margin:0;line-height:1.2;text-wrap:balance;letter-spacing:-.01em}
+h1{font-size:clamp(24px,3.4vw,32px);font-weight:800}
+h2{font-size:19px;font-weight:700}
+h3{font-size:15px;font-weight:700}
+p{margin:0}
+button,input,select,textarea{font:inherit;color:inherit}
+a{color:var(--teal-ink)}
+.mono{font-family:var(--mono);font-size:12.5px;letter-spacing:.01em}
+.num{font-variant-numeric:tabular-nums}
+.muted{color:var(--ink-2)}
+.faint{color:var(--ink-3)}
+.eyebrow{font-size:11.5px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:var(--ink-3)}
+:focus-visible{outline:2px solid var(--teal);outline-offset:2px}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+
+/* ---------- top bar ---------- */
+.topbar{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:var(--navy);color:var(--on-navy)}
+.topbar-in{max-width:1180px;margin:0 auto;padding:16px 20px;display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:16px;margin-right:auto}
+.brand-name{display:flex;flex-direction:column;gap:7px;font-weight:800;font-size:18px;line-height:1.1;letter-spacing:.005em}
+.brand-name small{display:block;font-weight:600;font-size:11px;line-height:1;letter-spacing:.2em;text-transform:uppercase;opacity:.7}
+.who{display:flex;align-items:center;gap:10px;flex-wrap:wrap;font-size:13px}
+.who .em{opacity:.85;overflow-wrap:anywhere}
+.role{font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;padding:4px 9px;border-radius:999px;background:var(--teal);color:var(--on-teal)}
+.role.agent{background:rgba(255,255,255,.14);color:var(--on-navy)}
+.demo-bar{background:var(--amber-soft);color:var(--amber);font-size:13px}
+.demo-bar .in{max-width:1180px;margin:0 auto;padding:8px 20px;display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+
+/* ---------- layout ---------- */
+.wrap{max-width:1180px;margin:0 auto;padding:28px 20px 64px;display:grid;gap:28px}
+.head{display:flex;gap:16px;align-items:flex-end;justify-content:space-between;flex-wrap:wrap}
+.head .sub{margin-top:6px;max-width:68ch}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow)}
+.section{display:grid;gap:14px}
+.section-h{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+
+/* ---------- buttons & inputs ---------- */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;border:1px solid var(--line-2);background:var(--surface);color:var(--ink);padding:9px 15px;border-radius:9px;font-weight:600;font-size:14px;cursor:pointer;transition:background .15s,border-color .15s,transform .05s}
+.btn:hover{background:var(--surface-2);border-color:var(--ink-3)}
+.btn:active{transform:translateY(1px)}
+.btn[disabled]{opacity:.55;cursor:not-allowed}
+.btn.primary{background:var(--teal);border-color:var(--teal);color:var(--on-teal)}
+.btn.primary:hover{filter:brightness(1.05)}
+.btn.ghost{background:transparent;border-color:transparent;color:inherit}
+.btn.ghost:hover{background:rgba(127,160,160,.14)}
+.btn.danger{color:var(--red);border-color:var(--red-soft)}
+.btn.danger.armed{background:var(--red);color:#fff;border-color:var(--red)}
+.btn.sm{padding:6px 10px;font-size:13px;border-radius:8px}
+.btn.lg{padding:12px 18px;font-size:15px}
+.topbar .btn{background:transparent;color:var(--on-navy);border-color:rgba(255,255,255,.25)}
+.topbar .btn:hover{background:rgba(255,255,255,.1)}
+.field{display:grid;gap:6px}
+.field label{font-size:13px;font-weight:600;color:var(--ink-2)}
+.field .hint{font-size:12.5px;color:var(--ink-3)}
+.input,select.input,textarea.input{width:100%;background:var(--surface);border:1px solid var(--line-2);border-radius:9px;padding:10px 12px;font-size:15px;min-width:0}
+textarea.input{min-height:74px;resize:vertical}
+.input:focus{outline:none;border-color:var(--teal);box-shadow:0 0 0 3px var(--teal-soft)}
+.grid2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+@media (max-width:560px){.grid2{grid-template-columns:1fr}}
+.err{background:var(--red-soft);color:var(--red);padding:10px 12px;border-radius:9px;font-size:14px;font-weight:500}
+.ok{background:var(--teal-soft);color:var(--teal-ink);padding:10px 12px;border-radius:9px;font-size:14px;font-weight:500}
+
+/* ---------- pills ---------- */
+.pill{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:700;padding:3px 9px;border-radius:999px;white-space:nowrap;background:var(--grey-soft);color:var(--ink-2)}
+.pill::before{content:"";width:6px;height:6px;border-radius:50%;background:currentColor;opacity:.85}
+.pill.nodot::before{display:none}
+.p-blue{background:var(--blue-soft);color:var(--blue)}
+.p-green{background:var(--green-soft);color:var(--green)}
+.p-teal{background:var(--teal-soft);color:var(--teal-ink)}
+.p-amber{background:var(--amber-soft);color:var(--amber)}
+.p-red{background:var(--red-soft);color:var(--red)}
+
+/* ---------- stats ---------- */
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px}
+.stat{padding:16px 18px;display:grid;gap:4px}
+.stat .v{font-size:26px;font-weight:800;letter-spacing:-.02em;font-variant-numeric:tabular-nums}
+.stat .l{font-size:13px;color:var(--ink-2);font-weight:600}
+.stat.hl{background:var(--teal);border-color:var(--teal);color:var(--on-teal)}
+.stat.hl .l{color:inherit;opacity:.85}
+
+/* ---------- login ---------- */
+.login{min-height:100%;display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);max-width:1180px;margin:0 auto;padding:48px 20px;gap:48px;align-items:center}
+@media (max-width:880px){.login{grid-template-columns:1fr;padding-block:28px;gap:28px}}
+.login-hero{display:grid;gap:22px}
+.login-hero .big{font-size:clamp(30px,4.6vw,48px);font-weight:800;line-height:1.08;letter-spacing:-.025em}
+.login-hero .big span{color:var(--teal)}
+.progs{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+@media (max-width:520px){.progs{grid-template-columns:1fr}}
+.prog{padding:16px;display:grid;gap:6px;border-radius:var(--radius)}
+.prog.da{background:var(--blue-soft)}
+.prog.sp{background:var(--green-soft)}
+.prog .amt{font-size:28px;font-weight:800;letter-spacing:-.02em}
+.prog.da .amt{color:var(--blue)} .prog.sp .amt{color:var(--green)}
+.prog .t{font-weight:700}
+.prog .d{font-size:13px;color:var(--ink-2)}
+.login-card{padding:28px;display:grid;gap:18px}
+.code-input{font-family:var(--mono);font-size:26px;letter-spacing:.45em;text-align:center;padding:12px}
+.gwrap{display:grid;gap:8px}
+.gbtn{min-height:44px;display:flex;align-items:center}
+.gbtn .gdemo{width:100%}
+.or{display:flex;align-items:center;gap:12px;color:var(--ink-3);font-size:12.5px;font-weight:600;margin-top:4px}
+.or::before,.or::after{content:"";flex:1;height:1px;background:var(--line)}
+.quick{display:grid;gap:8px;border-top:1px dashed var(--line-2);padding-top:16px}
+.quick .row{display:flex;flex-wrap:wrap;gap:8px}
+
+/* ---------- referral cards (agent) ---------- */
+.seg{display:inline-flex;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:3px;gap:2px;flex-wrap:wrap}
+.seg button{border:0;background:transparent;padding:6px 12px;border-radius:7px;font-weight:600;font-size:13px;color:var(--ink-2);cursor:pointer}
+.seg button[aria-pressed="true"]{background:var(--navy);color:var(--on-navy)}
+.rlist{display:grid;gap:12px}
+.rcard{padding:18px;display:grid;gap:14px}
+.rcard-top{display:flex;gap:12px;justify-content:space-between;flex-wrap:wrap;align-items:flex-start}
+.rcard-name{font-weight:700;font-size:16px}
+.rcard-meta{display:flex;gap:8px;flex-wrap:wrap;align-items:center;font-size:13px;color:var(--ink-2)}
+.pills{display:flex;gap:6px;flex-wrap:wrap}
+.rcard-foot{display:flex;gap:20px;flex-wrap:wrap;font-size:13px;color:var(--ink-2);border-top:1px solid var(--line);padding-top:12px}
+.rcard-foot b{color:var(--ink);font-variant-numeric:tabular-nums;font-size:15px}
+.flag{font-size:13px;background:var(--red-soft);color:var(--red);padding:8px 12px;border-radius:8px}
+
+/* milestone track */
+.track{display:grid;gap:10px}
+.steps{display:grid;gap:8px;grid-template-columns:repeat(var(--n),minmax(0,1fr))}
+@media (max-width:600px){.steps{grid-template-columns:1fr 1fr}}
+.step{display:grid;gap:2px;padding:9px 11px;border-radius:9px;background:var(--surface-2);border:1px solid var(--line);position:relative}
+.step .s-l{font-size:12.5px;color:var(--ink-2);font-weight:600}
+.step .s-a{font-weight:800;font-variant-numeric:tabular-nums}
+.step.done{background:var(--teal-soft);border-color:transparent}
+.step.done .s-l{color:var(--teal-ink)}
+.step.done::after{content:"";position:absolute;top:9px;right:10px;width:14px;height:14px;border-radius:50%;background:var(--teal) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M4 8.2l2.6 2.6L12 5.4' fill='none' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center/12px no-repeat}
+.bar{height:8px;border-radius:99px;background:var(--grey-soft);overflow:hidden}
+.bar i{display:block;height:100%;background:var(--teal);border-radius:99px}
+.bar-l{display:flex;justify-content:space-between;font-size:12.5px;color:var(--ink-2);gap:8px;flex-wrap:wrap}
+
+/* ---------- tables ---------- */
+.tbl-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:14px}
+th{text-align:left;font-size:11.5px;letter-spacing:.07em;text-transform:uppercase;color:var(--ink-3);font-weight:700;padding:11px 14px;border-bottom:1px solid var(--line);white-space:nowrap;background:var(--surface-2)}
+td{padding:12px 14px;border-bottom:1px solid var(--line);vertical-align:top}
+tr:last-child td{border-bottom:0}
+td.r,th.r{text-align:right}
+tbody tr.click{cursor:pointer}
+tbody tr.click:hover td{background:var(--surface-2)}
+.cell-2{display:block;font-size:12.5px;color:var(--ink-3);overflow-wrap:anywhere}
+.empty{padding:28px;text-align:center;color:var(--ink-2)}
+
+/* ---------- admin ---------- */
+.tabs{display:flex;gap:4px;border-bottom:1px solid var(--line);overflow-x:auto}
+.tabs button{border:0;background:transparent;padding:10px 14px;font-weight:600;color:var(--ink-2);cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px;white-space:nowrap;font-size:14px}
+.tabs button[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--teal)}
+.tabs .count{font-size:11px;background:var(--grey-soft);border-radius:99px;padding:1px 7px;margin-left:6px}
+.toolbar{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.toolbar .input{width:auto;flex:1 1 200px}
+.toolbar select.input{flex:0 1 180px}
+.cols2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+@media (max-width:820px){.cols2{grid-template-columns:1fr}}
+.panel{padding:18px;display:grid;gap:12px;align-content:start}
+.split{display:grid;gap:12px}
+.split-row{display:grid;gap:6px}
+.split-row .top{display:flex;justify-content:space-between;gap:8px;font-size:14px}
+.attn{display:grid}
+.attn button{display:flex;justify-content:space-between;gap:10px;align-items:center;text-align:left;border:0;border-top:1px solid var(--line);background:transparent;padding:10px 2px;cursor:pointer;width:100%}
+.attn button:first-child{border-top:0}
+.attn button:hover{color:var(--teal-ink)}
+.admins{display:grid}
+.admins .row{display:flex;gap:10px;align-items:center;justify-content:space-between;padding:12px 16px;border-top:1px solid var(--line);flex-wrap:wrap}
+.admins .row:first-child{border-top:0}
+.rules{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:10px}
+.rule{display:flex;gap:10px;align-items:flex-start;font-size:13px;color:var(--ink-2);padding:12px;border-radius:10px;background:var(--surface-2);border:1px solid var(--line)}
+.rule b{display:block;color:var(--ink);font-size:13.5px}
+.tiers{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+@media (max-width:640px){.tiers{grid-template-columns:1fr}}
+.tier{padding:12px;border-radius:10px;background:var(--green-soft);display:grid;gap:3px}
+.tier .cap{font-weight:800;font-size:20px;color:var(--green)}
+.tier .roles{font-size:12.5px;color:var(--ink-2)}
+
+/* ---------- overlay: drawer & modal ---------- */
+.scrim{position:fixed;inset:0;background:rgba(9,20,26,.45);z-index:40;display:flex;justify-content:flex-end}
+.scrim.center{justify-content:center;align-items:flex-start;padding:5vh 16px;overflow-y:auto}
+.drawer{width:min(560px,100%);height:100%;background:var(--ground);overflow-y:auto;display:grid;align-content:start;box-shadow:-10px 0 40px rgba(0,0,0,.25)}
+.drawer-h{position:sticky;top:0;background:var(--surface);border-bottom:1px solid var(--line);padding:16px 20px;display:flex;gap:12px;align-items:flex-start;justify-content:space-between;z-index:1}
+.drawer-b{padding:20px;display:grid;gap:18px}
+.modal{width:min(600px,100%);background:var(--surface);border-radius:14px;box-shadow:0 30px 80px rgba(0,0,0,.35);display:grid}
+.modal-h{padding:18px 22px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;gap:12px;align-items:center}
+.modal-b{padding:22px;display:grid;gap:16px}
+.modal-f{padding:14px 22px;border-top:1px solid var(--line);display:flex;justify-content:flex-end;gap:10px;flex-wrap:wrap}
+.choice{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+@media (max-width:520px){.choice{grid-template-columns:1fr}}
+.choice label{display:grid;gap:3px;padding:12px 14px;border:1.5px solid var(--line-2);border-radius:10px;cursor:pointer;background:var(--surface)}
+.choice input{position:absolute;opacity:0;pointer-events:none}
+.choice label:has(input:checked){border-color:var(--teal);background:var(--teal-soft)}
+.choice label:has(input:focus-visible){outline:2px solid var(--teal);outline-offset:2px}
+.choice .ct{font-weight:700}
+.choice .cd{font-size:12.5px;color:var(--ink-2)}
+.kv{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px}
+.kv div{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:10px 12px}
+.kv .k{font-size:12px;color:var(--ink-3);font-weight:600}
+.kv .v{font-weight:800;font-variant-numeric:tabular-nums}
+.toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--navy);color:var(--on-navy);padding:11px 18px;border-radius:10px;font-weight:600;font-size:14px;z-index:60;box-shadow:var(--shadow);max-width:calc(100% - 32px)}
+.spinner{width:16px;height:16px;border-radius:50%;border:2px solid currentColor;border-right-color:transparent;animation:spin .7s linear infinite;display:inline-block}
+@keyframes spin{to{transform:rotate(360deg)}}
+.loading{display:grid;place-items:center;min-height:60vh;color:var(--ink-2);gap:12px}
+</style>
+
+<div id="app"><div class="loading"><span class="spinner"></span>Loading…</div></div>
+
+<script>
+(function(){
+"use strict";
+
+/* =========================================================================
+   SETTINGS — fill these in only when hosting this page outside Apps Script
+   (e.g. GitHub Pages). Leave both empty when Apps Script serves the page.
+   ========================================================================= */
+const CONFIG = {
+  // Your Apps Script web app link (ends in /exec)
+  API_URL: "",
+  // Your OAuth Web client ID from Google Cloud (ends in .apps.googleusercontent.com)
+  GOOGLE_CLIENT_ID: "",
+};
+
+/* =========================================================================
+   Transport: hosted API, Apps Script page, or demo (in-page sample data)
+   ========================================================================= */
+const API = String(CONFIG.API_URL || "").trim();
+const GAS = !API && typeof google !== "undefined" && google.script && google.script.run;
+const LIVE = !!(API || GAS);
+const GOOGLE_ON = !!(API && String(CONFIG.GOOGLE_CLIENT_ID || "").trim());   // Google button needs a hosted page
+const DEMO_GOOGLE = !LIVE;
+let gisReady = false, gisFailed = false;
+
+async function apiCall(fn, args){
+  let r;
+  try {
+    r = await fetch(API, { method: "POST", headers: { "Content-Type": "text/plain;charset=utf-8" }, body: JSON.stringify({ fn, args }) });
+  } catch(e){ throw new Error("Can't reach the portal server. Check your connection and try again."); }
+  if (!r.ok) throw new Error("The portal server didn't respond (error " + r.status + "). Try again in a moment.");
+  let j;
+  try { j = await r.json(); } catch(e){ throw new Error("The portal server sent an unexpected reply. Check that API_URL is the web app link ending in /exec."); }
+  if (!j.ok) throw new Error(j.error || "Something went wrong. Try again.");
+  return j.result;
+}
+function call(fn, ...args){
+  if (API) return apiCall(fn, args);
+  if (GAS){
+    return new Promise((res, rej) => {
+      google.script.run.withSuccessHandler(res).withFailureHandler(e => rej(new Error((e && e.message) || String(e))))[fn](...args);
+    });
+  }
+  return new Promise((res, rej) => setTimeout(() => { try { res(clone(Demo[fn](...args))); } catch(e){ rej(e); } }, 250));
+}
+
+/* ---------- Sign in with Google (Google Identity Services) ---------- */
+function loadGoogle(){
+  if (!GOOGLE_ON) return;
+  const sc = document.createElement("script");
+  sc.src = "https://accounts.google.com/gsi/client"; sc.async = true;
+  sc.onload = () => {
+    try {
+      google.accounts.id.initialize({ client_id: CONFIG.GOOGLE_CLIENT_ID.trim(), callback: onGoogleCredential, ux_mode: "popup", auto_select: false, cancel_on_tap_outside: true });
+      gisReady = true;
+    } catch(e){ gisFailed = true; }
+    if (!S.data) render();
+  };
+  sc.onerror = () => { gisFailed = true; if (!S.data) render(); };
+  document.head.appendChild(sc);
+}
+function drawGoogleButton(){
+  const el = document.getElementById("gbtn");
+  if (!el || !gisReady) return;
+  el.innerHTML = "";
+  google.accounts.id.renderButton(el, { type: "standard", theme: "outline", size: "large", text: "signin_with", shape: "rectangular", logo_alignment: "left", width: Math.max(200, Math.min(400, el.clientWidth || 320)) });
+}
+async function onGoogleCredential(resp){
+  const res = await run("googleSignIn", [resp && resp.credential]);
+  if (res){ S.token = res.token; store.set(res.token); S.data = res.data; S.tab = "overview"; render(); }
+}
+const clone = o => JSON.parse(JSON.stringify(o));
+
+/* =========================================================================
+   Demo backend — mirrors Code.gs rules so the portal can be tried without a sheet
+   ========================================================================= */
+const Demo = (function(){
+  const day = 864e5;
+  const iso = d => { const x = new Date(d); return x.getFullYear()+"-"+String(x.getMonth()+1).padStart(2,"0")+"-"+String(x.getDate()).padStart(2,"0"); };
+  const ago = n => iso(Date.now() - n*day);
+  const settings = { m1Tasks:10, m1Reward:20, m2Tasks:20, m2Reward:20, spPct:.05, spDays:30, tiers:[
+    {tier:"Tier 1",cap:100,roles:"STEM, Medical, Software, Domain SMEs"},
+    {tier:"Tier 2",cap:150,roles:"Adv. Math, Sciences, Clinical/Pharma, Coding, ML"},
+    {tier:"Tier 3",cap:200,roles:"Security, Agentic Coding, ML Research, Quant, Legal"}]};
+  let admins = ["admin@agentsonly.com"];
+  let agents = [
+    {"id": "AG-0001", "name": "B. Samarista", "aoEmail": "bsamarista@agentsonly.com", "personalEmail": "", "status": "Active", "notes": ""},
+    {"id": "AG-0002", "name": "M. Quint", "aoEmail": "", "personalEmail": "mar.quint@hotmail.com", "status": "Active", "notes": ""},
+    {"id": "AG-0003", "name": "J. Buala", "aoEmail": "jbuala@agentsonly.com", "personalEmail": "", "status": "Active", "notes": ""},
+    {"id": "AG-0004", "name": "A. Alvarez", "aoEmail": "aalvarez@agentsonly.com", "personalEmail": "", "status": "Active", "notes": ""},
+    {"id": "AG-0005", "name": "E. Alvarez", "aoEmail": "ealvarez@agentsonly.com", "personalEmail": "", "status": "Active", "notes": ""},
+  ];
+  const R = (id,date,rE,rN,dN,dE,program,tier,role,status,q,qa,bs,earn,notes) =>
+    ({id,date,referrerEmail:rE,referrerName:rN,referredName:dN,referredEmail:dE,program,tier,role,status,qualifiedDate:q,qaTasks:qa,billableStart:bs,earnings30:earn,notes:notes||""});
+  let referrals = [
+    R("REF-0001","2026-07-06","bsamarista@agentsonly.com","B. Samarista","Carla Mendoza","carla.mendoza@example.com","Data & AI Talent","","Annotation","Active","2026-07-09",26,"",null,""),
+    R("REF-0002","2026-07-10","bsamarista@agentsonly.com","B. Samarista","Ramon Villareal","ramon.v@example.com","Specialist Talent","Tier 2","Coding (Python)","Active","2026-07-14",null,"2026-07-20",2600,""),
+    R("REF-0003","2026-08-18","bsamarista@agentsonly.com","B. Samarista","Liza Fernandez","liza.fernandez@example.com","Data & AI Talent","","Data labeling","Active","2026-08-20",13,"",null,""),
+    R("REF-0004","2026-09-15","bsamarista@agentsonly.com","B. Samarista","Noel Garcia","noel.garcia@example.com","Specialist Talent","Tier 3","Security","Qualified","2026-09-19",null,"",null,"Onboarding scheduled"),
+    R("REF-0005","2026-07-02","mar.quint@hotmail.com","M. Quint","Patricia Lim","patricia.lim@example.com","Specialist Talent","Tier 1","Medical","Active","2026-07-06",null,"2026-07-10",2400,"First half paid"),
+    R("REF-0006","2026-08-01","mar.quint@hotmail.com","M. Quint","Jerome Santos","jerome.santos@example.com","Data & AI Talent","","Search evaluation","Active","2026-08-04",21,"",null,""),
+    R("REF-0007","2026-09-08","mar.quint@hotmail.com","M. Quint","Angela Cruz","angela.cruz@example.com","Data & AI Talent","","Transcription","Qualified","2026-09-12",4,"",null,""),
+    R("REF-0008","2026-09-20","mar.quint@hotmail.com","M. Quint","Victor Reyes","victor.reyes@example.com","Specialist Talent","Tier 2","Adv. Math","Submitted","",null,"",null,""),
+    R("REF-0009","2026-07-20","jbuala@agentsonly.com","J. Buala","Kristine Aquino","kristine.aquino@example.com","Specialist Talent","Tier 3","Agentic Coding","Active","2026-07-24",null,"2026-08-01",5200,"Hit the Tier 3 cap"),
+    R("REF-0010","2026-08-05","jbuala@agentsonly.com","J. Buala","Mark Dizon","mark.dizon@example.com","Data & AI Talent","","Annotation","Active","2026-08-08",17,"",null,""),
+    R("REF-0011","2026-08-25","jbuala@agentsonly.com","J. Buala","Carla Mendoza","carla.mendoza@example.com","Data & AI Talent","","Annotation","Submitted","",null,"",null,"Already referred by B. Samarista"),
+    R("REF-0012","2026-09-10","jbuala@agentsonly.com","J. Buala","Paolo Bautista","paolo.bautista@example.com","Data & AI Talent","","Rating & ranking","Not Qualified","",null,"",null,"Did not pass the assessment"),
+    R("REF-0013","2026-07-28","aalvarez@agentsonly.com","A. Alvarez","Grace Tan","grace.tan@example.com","Specialist Talent","Tier 2","Clinical/Pharma","Active","2026-08-01",null,"2026-08-10",3400,""),
+    R("REF-0014","2026-08-12","aalvarez@agentsonly.com","A. Alvarez","Daniel Ong","daniel.ong@example.com","Data & AI Talent","","Data labeling","Active","2026-08-15",20,"",null,""),
+    R("REF-0015","2026-09-03","aalvarez@agentsonly.com","A. Alvarez","Sofia Ramirez","sofia.ramirez@example.com","Specialist Talent","Tier 1","Software","Active","2026-09-06",null,"2026-09-10",900,""),
+    R("REF-0016","2026-09-18","aalvarez@agentsonly.com","A. Alvarez","Miguel Herrera","miguel.herrera@example.com","Data & AI Talent","","Annotation","Submitted","",null,"",null,""),
+    R("REF-0017","2026-07-15","ealvarez@agentsonly.com","E. Alvarez","Hannah Lopez","hannah.lopez@example.com","Data & AI Talent","","Annotation","Active","2026-07-18",30,"",null,""),
+    R("REF-0018","2026-08-08","ealvarez@agentsonly.com","E. Alvarez","Leo Navarro","leo.navarro@example.com","Specialist Talent","Tier 3","Quant","Active","2026-08-11",null,"2026-08-18",3000,""),
+    R("REF-0019","2026-09-01","ealvarez@agentsonly.com","E. Alvarez","Ivy Castillo","ivy.castillo@example.com","Data & AI Talent","","Transcription","Active","2026-09-04",11,"",null,""),
+    R("REF-0020","2026-09-12","ealvarez@agentsonly.com","E. Alvarez","E. Alvarez","ealvarez@agentsonly.com","Data & AI Talent","","Annotation","Rejected","",null,"",null,"Self-referral"),
+    R("REF-0021","2026-09-22","bsamarista@agentsonly.com","B. Samarista","Nina Flores","nina.flores@example.com","Specialist Talent","Tier 1","STEM","Submitted","",null,"",null,""),
+  ];
+  let payouts = [
+    {"id": "PAY-0001", "referralId": "REF-0001", "date": "2026-08-15", "amount": 40, "method": "GCash", "reference": "GC-10421", "recordedBy": "admin@agentsonly.com"},
+    {"id": "PAY-0002", "referralId": "REF-0002", "date": "2026-09-05", "amount": 130, "method": "Bank transfer", "reference": "BT-7730", "recordedBy": "admin@agentsonly.com"},
+    {"id": "PAY-0003", "referralId": "REF-0005", "date": "2026-08-30", "amount": 50, "method": "GCash", "reference": "GC-11807", "recordedBy": "admin@agentsonly.com"},
+    {"id": "PAY-0004", "referralId": "REF-0010", "date": "2026-08-28", "amount": 20, "method": "GCash", "reference": "GC-11690", "recordedBy": "admin@agentsonly.com"},
+    {"id": "PAY-0005", "referralId": "REF-0014", "date": "2026-09-10", "amount": 20, "method": "PayPal", "reference": "PP-3321", "recordedBy": "admin@agentsonly.com"},
+    {"id": "PAY-0006", "referralId": "REF-0017", "date": "2026-08-20", "amount": 40, "method": "GCash", "reference": "GC-10955", "recordedBy": "admin@agentsonly.com"},
+  ];
+  const sessions = {}; let pending = null;
+  const norm = e => String(e||"").trim().toLowerCase();
+  const isEmail = e => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e);
+  const agentBy = e => agents.find(a => a.status!=="Inactive" && (a.aoEmail===norm(e) || a.personalEmail===norm(e)));
+  const emailsOf = e => { const a = agents.find(x => x.aoEmail===norm(e)||x.personalEmail===norm(e)); return a ? [a.aoEmail,a.personalEmail].filter(Boolean) : [norm(e)]; };
+  function identify(email){
+    email = norm(email);
+    const isAdmin = admins.includes(email), ag = agentBy(email);
+    if (!isAdmin && !ag) return null;
+    const emails = ag ? [ag.aoEmail, ag.personalEmail].filter(Boolean) : [email];
+    if (!emails.includes(email)) emails.push(email);
+    return {email, isAdmin, name: ag ? ag.name : "", agentId: ag ? ag.id : "", emails};
+  }
+  function session(t){ const e = sessions[t]; const w = e && identify(e); if (!w) throw new Error("SESSION_EXPIRED"); return w; }
+  function admin(t){ const w = session(t); if (!w.isAdmin) throw new Error("Only admins can do that."); return w; }
+  const cap = tier => (settings.tiers.find(x => x.tier===tier)||{cap:0}).cap;
+  function computed(){
+    const today = new Date(iso(Date.now())).getTime();
+    return referrals.map((r,i) => {
+      const own = emailsOf(r.referrerEmail);
+      let validation = "OK";
+      if (norm(r.referredEmail)===norm(r.referrerEmail) || own.includes(norm(r.referredEmail))) validation = "Self-referral";
+      else if (referrals.slice(0,i).some(x => norm(x.referredEmail)===norm(r.referredEmail))) validation = "Duplicate";
+      const daysActive = r.billableStart ? Math.min(settings.spDays, Math.max(0, Math.round((today - new Date(r.billableStart).getTime())/day))) : null;
+      const accrued = Math.min((r.earnings30||0)*settings.spPct, cap(r.tier));
+      const progress = r.program==="Data & AI Talent" ? Math.min(r.qaTasks||0, settings.m2Tasks)+" of "+settings.m2Tasks+" QA-approved tasks"
+        : (!r.billableStart ? "Awaiting billable work" : "Day "+daysActive+" of "+settings.spDays+" · accrued $"+accrued.toFixed(2));
+      let reward = 0;
+      if (validation==="OK" && r.qualifiedDate && !["Submitted","Not Qualified","Rejected"].includes(r.status)){
+        if (r.program==="Data & AI Talent") reward = (r.qaTasks||0)>=settings.m2Tasks ? settings.m1Reward+settings.m2Reward : (r.qaTasks||0)>=settings.m1Tasks ? settings.m1Reward : 0;
+        else reward = (daysActive||0)>=settings.spDays ? Math.round(accrued*100)/100 : 0;
+      }
+      const paid = payouts.filter(p => p.referralId===r.id).reduce((s,p) => s+p.amount, 0);
+      const balance = reward - paid;
+      const paymentStatus = validation!=="OK" ? "Not eligible" : reward===0 ? "Not yet earned" : balance<=0 ? "Paid" : paid>0 ? "Partially paid" : "Due";
+      return Object.assign({}, r, {daysActive, validation, progress, reward, paid, balance, paymentStatus});
+    });
+  }
+  function data(t){
+    const w = session(t), refs = computed();
+    const me = {email:w.email,name:w.name,isAdmin:w.isAdmin,agentId:w.agentId,emails:w.emails};
+    if (w.isAdmin) return {me, settings, referrals:refs, agents, payouts, admins, ownerEmail:"admin@agentsonly.com", sheetUrl:""};
+    const mine = refs.filter(r => w.emails.includes(norm(r.referrerEmail))).map(r => { const c = Object.assign({}, r); delete c.notes; return c; });
+    const ids = mine.map(r => r.id);
+    return {me, settings, referrals:mine, payouts:payouts.filter(p => ids.includes(p.referralId)).map(p => ({id:p.id,referralId:p.referralId,date:p.date,amount:p.amount,method:p.method}))};
+  }
+  const nextId = (list,prefix) => prefix + String(list.reduce((m,x) => Math.max(m, Number((x.id.match(/(\d+)$/)||[0,0])[1])), 0)+1).padStart(4,"0");
+  return {
+    requestCode(email){
+      email = norm(email);
+      if (!isEmail(email)) throw new Error("Enter a valid email address.");
+      if (!identify(email)) throw new Error("This email isn't registered for the referral program. Ask a program admin to add it to your agent profile.");
+      pending = email; return {sent:true, email};
+    },
+    verifyCode(email, code){
+      if (norm(email)!==pending) throw new Error("That code has expired. Request a new one.");
+      if (String(code).replace(/\D/g,"")!=="123456") throw new Error("That code is not right. In demo mode the code is 123456.");
+      const t = "demo-"+Math.random().toString(36).slice(2); sessions[t] = norm(email);
+      return {token:t, data:data(t)};
+    },
+    googleSignIn(cred){
+      const email = norm(String(cred||"").replace(/^demo:/,""));
+      if (!identify(email)) throw new Error(email+" isn't registered for the referral program.");
+      const t = "demo-"+Math.random().toString(36).slice(2); sessions[t] = email;
+      return {token:t, data:data(t)};
+    },
+    signOut(t){ delete sessions[t]; return true; },
+    getPortalData: data,
+    submitReferral(t, f){
+      const w = session(t);
+      const dN = String(f.referredName||"").trim(), dE = norm(f.referredEmail), program = f.program, tier = program==="Specialist Talent" ? f.tier : "";
+      if (!dN) throw new Error("Enter the referred person's full name.");
+      if (!isEmail(dE)) throw new Error("Enter the referred person's email address.");
+      if (!["Data & AI Talent","Specialist Talent"].includes(program)) throw new Error("Choose a program.");
+      if (program==="Specialist Talent" && !tier) throw new Error("Choose the specialist tier that matches their role.");
+      let rE = w.email, rN = w.name, rEmails = w.emails;
+      if (w.isAdmin && f.referrerEmail){ const a = agentBy(f.referrerEmail); if (!a) throw new Error("The referrer email is not on the Agents list. Add the agent first."); rE = norm(f.referrerEmail); rN = a.name; rEmails = [a.aoEmail,a.personalEmail]; }
+      if (rEmails.includes(dE)) throw new Error("Self-referrals are not allowed. The referred email belongs to the referrer.");
+      if (referrals.some(r => norm(r.referredEmail)===dE)) throw new Error("This person has already been referred. The first referrer receives credit.");
+      referrals.push(R(nextId(referrals,"REF-"), iso(Date.now()), rE, rN, dN, dE, program, tier, String(f.role||""), "Submitted", "", null, "", null, w.isAdmin ? f.notes : ""));
+      return data(t);
+    },
+    updateReferral(t, id, p){
+      admin(t); const r = referrals.find(x => x.id===id); if (!r) throw new Error("Referral not found.");
+      for (const k of ["program","tier","status","role","referredName","notes","qualifiedDate","billableStart"]) if (k in p) r[k] = p[k]||"";
+      if ("referredEmail" in p){ if (!isEmail(norm(p.referredEmail))) throw new Error("Referred email is not valid."); r.referredEmail = norm(p.referredEmail); }
+      for (const k of ["qaTasks","earnings30"]) if (k in p) r[k] = p[k]===""||p[k]==null ? null : Number(p[k]);
+      if ((p.status==="Qualified"||p.status==="Active") && !r.qualifiedDate) r.qualifiedDate = iso(Date.now());
+      return data(t);
+    },
+    deleteReferral(t, id){
+      admin(t);
+      if (payouts.some(p => p.referralId===id)) throw new Error("This referral has payouts recorded. Delete its payouts first.");
+      referrals = referrals.filter(r => r.id!==id); return data(t);
+    },
+    recordPayout(t, p){
+      const w = admin(t); const amount = Number(p.amount);
+      if (!(amount>0)) throw new Error("Enter an amount greater than 0.");
+      payouts.push({id:nextId(payouts,"PAY-"),referralId:p.referralId,date:p.date||iso(Date.now()),amount,method:p.method||"",reference:p.reference||"",recordedBy:w.email});
+      return data(t);
+    },
+    deletePayout(t, id){ admin(t); payouts = payouts.filter(p => p.id!==id); return data(t); },
+    saveAgent(t, a){
+      admin(t);
+      const name = String(a.name||"").trim(), ao = norm(a.aoEmail), pe = norm(a.personalEmail);
+      if (!name) throw new Error("Enter the agent's full name.");
+      if (!ao && !pe) throw new Error("Enter at least one email for the agent.");
+      if ((ao && !isEmail(ao)) || (pe && !isEmail(pe))) throw new Error("One of the emails is not valid.");
+      if (ao && ao===pe) throw new Error("The two emails must be different.");
+      const clash = agents.find(x => x.id!==a.id && [x.aoEmail,x.personalEmail].some(e => e && (e===ao || e===pe)));
+      if (clash) throw new Error("One of these emails already belongs to "+clash.name+" ("+clash.id+").");
+      const rec = {id:a.id||nextId(agents,"AG-"),name,aoEmail:ao,personalEmail:pe,status:a.status==="Inactive"?"Inactive":"Active",notes:a.notes||""};
+      const i = agents.findIndex(x => x.id===a.id); if (i>-1) agents[i] = rec; else agents.push(rec);
+      return data(t);
+    },
+    saveAdmins(t, list){
+      const w = admin(t);
+      const clean = [...new Set(list.map(norm).filter(Boolean))];
+      const bad = clean.find(e => !isEmail(e)); if (bad) throw new Error('"'+bad+'" is not a valid email.');
+      if (!clean.includes(w.email)) throw new Error("You can't remove your own admin access. Ask another admin to do it.");
+      admins = clean; return data(t);
+    },
+  };
+})();
+
+/* =========================================================================
+   State
+   ========================================================================= */
+const S = {
+  token: null, data: null, busy: false, error: "", notice: "",
+  login: { step: "email", email: "" },
+  agentFilter: "all",
+  tab: "overview",
+  f: { q: "", program: "", status: "", payment: "" },
+  drawer: null, modal: null, armed: null, toast: "",
+};
+const store = {
+  get(){ try { return sessionStorage.getItem("rr_token"); } catch(e){ return null; } },
+  set(v){ try { v ? sessionStorage.setItem("rr_token", v) : sessionStorage.removeItem("rr_token"); } catch(e){} },
+};
+
+/* =========================================================================
+   Helpers
+   ========================================================================= */
+const $ = s => document.querySelector(s);
+const esc = s => String(s == null ? "" : s).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const money = n => "$" + (Number(n)||0).toLocaleString("en-US",{minimumFractionDigits:(Number(n)%1?2:0),maximumFractionDigits:2});
+const money2 = n => "$" + (Number(n)||0).toLocaleString("en-US",{minimumFractionDigits:2,maximumFractionDigits:2});
+const fdate = s => { if (!s) return "—"; const d = new Date(s+"T00:00:00"); return isNaN(d) ? esc(s) : d.toLocaleDateString("en-US",{month:"short",day:"numeric",year:"numeric"}); };
+const todayIso = () => { const d = new Date(); return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0"); };
+const first = n => String(n||"").split(" ")[0];
+const isDA = r => r.program === "Data & AI Talent";
+const qualified = r => !!r.qualifiedDate && (r.status === "Qualified" || r.status === "Active");
+const tierCap = t => ((S.data.settings.tiers||[]).find(x => x.tier===t)||{cap:0}).cap;
+const sum = (a, k) => a.reduce((s, x) => s + (Number(x[k])||0), 0);
+
+function progPill(r){
+  return isDA(r) ? '<span class="pill nodot p-blue">Data &amp; AI</span>'
+    : '<span class="pill nodot p-green">Specialist' + (r.tier ? " · " + esc(r.tier) : "") + "</span>";
+}
+function statusPill(s){
+  const m = {"Submitted":"p-amber","Qualified":"p-teal","Active":"p-teal","Not Qualified":"","Rejected":"p-red"};
+  return '<span class="pill ' + (m[s]||"") + '">' + esc(s||"Submitted") + "</span>";
+}
+function payPill(s){
+  const m = {"Paid":"p-teal","Partially paid":"p-blue","Due":"p-amber","Not eligible":"p-red","Not yet earned":""};
+  return '<span class="pill ' + (m[s]||"") + '">' + esc(s||"Not yet earned") + "</span>";
+}
+function flagText(r){
+  if (r.validation === "Duplicate") return "Not eligible: this person was already referred by someone else. The first referrer receives credit.";
+  if (r.validation === "Self-referral") return "Not eligible: self-referrals are not allowed.";
+  return "";
+}
+const logo = '<svg width="34" height="34" viewBox="0 0 30 30" aria-hidden="true">' +
+  [0,1,2].map(y => [0,1,2].map(x => '<circle cx="'+(5+x*10)+'" cy="'+(5+y*10)+'" r="3.3" fill="#19C29C"/>').join("")).join("") + "</svg>";
+
+/* =========================================================================
+   Actions
+   ========================================================================= */
+function setBusy(on){
+  S.busy = on;
+  document.querySelectorAll('button[type="submit"], .modal-f .btn.primary').forEach(b => { b.disabled = on; });
+  document.body.style.cursor = on ? "progress" : "";
+}
+function showError(msg){
+  const slots = document.querySelectorAll(".err-slot");
+  const slot = slots[slots.length - 1];
+  if (slot){ slot.innerHTML = msg ? '<div class="err">' + esc(msg) + "</div>" : ""; if (msg) slot.scrollIntoView({block:"nearest"}); }
+  else if (msg) toast(msg);
+}
+async function run(fn, args, okMsg){
+  S.error = ""; showError(""); setBusy(true);
+  try {
+    const res = await call(fn, ...args);
+    setBusy(false);
+    if (okMsg) toast(okMsg);
+    return res;
+  } catch(e){
+    setBusy(false);
+    if (String(e.message).indexOf("SESSION_EXPIRED") > -1){ signOutLocal("Your session ended. Sign in again to continue."); return null; }
+    showError(e.message || "Something went wrong. Try again.");
+    return null;
+  }
+}
+function toast(msg){
+  let el = document.getElementById("toast");
+  if (!el){ el = document.createElement("div"); el.id = "toast"; el.className = "toast"; el.setAttribute("role","status"); document.body.appendChild(el); }
+  el.textContent = msg; el.hidden = false;
+  clearTimeout(toast.t); toast.t = setTimeout(() => { el.hidden = true; }, 2600);
+}
+function signOutLocal(msg){
+  if (S.token) call("signOut", S.token).catch(() => {});
+  try { if (gisReady) google.accounts.id.disableAutoSelect(); } catch(e){}
+  S.token = null; S.data = null; store.set(null);
+  S.login = { step: "email", email: "" }; S.drawer = null; S.modal = null; S.tab = "overview";
+  S.error = msg || ""; render();
+}
+async function doRequestCode(email){
+  if (S.busy) return;
+  const res = await run("requestCode", [email]);
+  if (res){ S.login = { step: "code", email: res.email }; S.error = ""; S.notice = "We sent a 6-digit code to " + res.email + "."; render(); setTimeout(() => { const i = $("#code"); i && i.focus(); }, 30); }
+}
+async function doVerify(code){
+  if (S.busy) return;
+  const res = await run("verifyCode", [S.login.email, code]);
+  if (res){ S.token = res.token; store.set(res.token); S.data = res.data; S.notice = ""; S.tab = "overview"; render(); }
+}
+async function mutate(fn, args, msg, after){
+  const d = await run(fn, [S.token, ...args], msg);
+  if (d){ S.data = d; if (after) after(); render(); }
+  return d;
+}
+
+/* =========================================================================
+   Render: login
+   ========================================================================= */
+function googleBlock(){
+  if (!GOOGLE_ON && !DEMO_GOOGLE) return "";
+  const inner = DEMO_GOOGLE
+    ? `<button type="button" class="btn lg gdemo" data-act="demo-google">Sign in with Google</button>`
+    : gisFailed ? `<p class="faint" style="font-size:13px">Google sign-in isn't available right now. Use an email code below.</p>`
+    : `<span class="faint" style="font-size:13px">Loading Google sign-in…</span>`;
+  return `<div class="gwrap">
+      <div id="gbtn" class="gbtn">${inner}</div>
+      <p class="faint" style="font-size:12.5px">For Agents Only and Gmail accounts. ${DEMO_GOOGLE ? "In the demo this signs you in as B. Samarista." : ""}</p>
+      <div class="or"><span>or get a code by email</span></div>
+    </div>`;
+}
+function viewLogin(){
+  const L = S.login;
+  const demo = !LIVE ? `
+    <div class="quick">
+      <p class="eyebrow">Demo sign-in · code 123456</p>
+      <div class="row">
+        <button class="btn sm" data-act="demo" data-email="admin@agentsonly.com">Admin</button>
+        
+        <button class="btn sm" data-act="demo" data-email="bsamarista@agentsonly.com">B. Samarista</button>
+        <button class="btn sm" data-act="demo" data-email="mar.quint@hotmail.com">M. Quint</button>
+        <button class="btn sm" data-act="demo" data-email="jbuala@agentsonly.com">J. Buala</button>
+        <button class="btn sm" data-act="demo" data-email="aalvarez@agentsonly.com">A. Alvarez</button>
+        <button class="btn sm" data-act="demo" data-email="ealvarez@agentsonly.com">E. Alvarez</button>
+      </div>
+      <p class="faint" style="font-size:12.5px">Each agent sees only their own referrals. Nothing you do here is saved.</p>
+    </div>` : "";
+  const form = L.step === "email" ? `
+    <form id="f-email" class="login-card card" novalidate>
+      <div><h2>Sign in</h2><p class="muted" style="margin-top:4px">Use your Agents Only email or the personal email on your agent profile.</p></div>
+      <div class="err-slot" role="alert">${S.error ? `<div class="err">${esc(S.error)}</div>` : ""}</div>
+      ${googleBlock()}
+      <div class="field"><label for="email">Email address</label>
+        <input id="email" class="input" type="email" autocomplete="email" inputmode="email" placeholder="you@agentsonly.com" value="${esc(L.email)}" required></div>
+      <button class="btn primary lg" type="submit" ${S.busy ? "disabled" : ""}>${S.busy ? '<span class="spinner"></span>' : ""}Email me a sign-in code</button>
+      ${demo}
+    </form>` : `
+    <form id="f-code" class="login-card card" novalidate>
+      <div><h2>Check your email</h2><p class="muted" style="margin-top:4px">Enter the 6-digit code sent to <b>${esc(L.email)}</b>. It expires in 10 minutes.</p></div>
+      <div class="err-slot" role="alert">${S.error ? `<div class="err">${esc(S.error)}</div>` : ""}</div>
+      <div class="field"><label for="code">Sign-in code</label>
+        <input id="code" class="input code-input" inputmode="numeric" autocomplete="one-time-code" maxlength="6" placeholder="••••••" required></div>
+      <button class="btn primary lg" type="submit" ${S.busy ? "disabled" : ""}>${S.busy ? '<span class="spinner"></span>' : ""}Sign in</button>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:space-between">
+        <button type="button" class="btn ghost sm" data-act="login-back">Use a different email</button>
+        <button type="button" class="btn ghost sm" data-act="resend">Send a new code</button>
+      </div>
+      ${!LIVE ? '<p class="faint" style="font-size:12.5px">Demo mode: the code is 123456.</p>' : ""}
+    </form>`;
+  return `
+  <div class="topbar"><div class="topbar-in"><div class="brand">${logo}<div class="brand-name">Agents Only<small>Referral Program</small></div></div></div></div>
+  <main class="login">
+    <section class="login-hero">
+      <p class="eyebrow">Referral program</p>
+      <p class="big">Refer great talent.<br><span>Earn when they deliver.</span></p>
+      <div class="progs">
+        <div class="prog da"><span class="t">Data &amp; AI Talent / Agents</span><span class="amt">Up to $40</span>
+          <span class="d">$20 at 10 QA-approved tasks, another $20 at 20.</span></div>
+        <div class="prog sp"><span class="t">Specialist Talent</span><span class="amt">5%</span>
+          <span class="d">of their first 30-day earnings, up to $100, $150 or $200 by tier.</span></div>
+      </div>
+      <p class="muted" style="max-width:52ch">Track every person you refer, see which milestone they have reached, and check what has been paid.</p>
+    </section>
+    ${form}
+  </main>`;
+}
+
+/* =========================================================================
+   Render: shell
+   ========================================================================= */
+function viewShell(inner){
+  const me = S.data.me;
+  return `
+  <header class="topbar"><div class="topbar-in">
+    <div class="brand">${logo}<div class="brand-name">Agents Only<small>Referral Program</small></div></div>
+    <div class="who">
+      <span class="role ${me.isAdmin ? "" : "agent"}">${me.isAdmin ? "Admin" : "Agent"}</span>
+      <span class="em">${esc(me.email)}</span>
+      <button class="btn sm" data-act="signout">Sign out</button>
+    </div>
+  </div></header>
+  ${!LIVE ? `<div class="demo-bar"><div class="in"><b>Demo mode</b><span>Sample data only. Changes reset when the page reloads.</span><button class="btn sm ghost" data-act="signout" style="margin-left:auto">Switch user</button></div></div>` : ""}
+  <main class="wrap">${inner}</main>
+  ${S.drawer ? viewDrawer() : ""}
+  ${S.modal ? viewModal() : ""}
+`;
+}
+
+/* ---------- milestone track ---------- */
+function track(r){
+  const st = S.data.settings;
+  if (isDA(r)){
+    const t = r.qaTasks||0, q = qualified(r);
+    const steps = [
+      {l:"Qualifies", a:"$0", d:q},
+      {l:st.m1Tasks+" QA-approved tasks", a:money(st.m1Reward), d:q && t>=st.m1Tasks},
+      {l:st.m2Tasks+" QA-approved tasks", a:"+"+money(st.m2Reward), d:q && t>=st.m2Tasks},
+    ];
+    const pct = Math.min(100, t/st.m2Tasks*100);
+    return `<div class="track">
+      <div class="steps" style="--n:3">${steps.map(s => `<div class="step ${s.d?"done":""}"><span class="s-l">${esc(s.l)}</span><span class="s-a">${s.a}</span></div>`).join("")}</div>
+      <div class="bar" role="img" aria-label="${t} of ${st.m2Tasks} tasks"><i style="width:${pct}%"></i></div>
+      <div class="bar-l"><span class="num">${Math.min(t,st.m2Tasks)} of ${st.m2Tasks} QA-approved tasks</span><span>Max ${money(st.m1Reward+st.m2Reward)}</span></div>
+    </div>`;
+  }
+  const cap = tierCap(r.tier), q = qualified(r), started = !!r.billableStart, days = r.daysActive||0;
+  const accrued = Math.min((r.earnings30||0)*st.spPct, cap);
+  const steps = [
+    {l:"Qualifies", a:q?"Done":"Pending", d:q},
+    {l:"Billable work", a:started?"Since "+fdate(r.billableStart):"Not started", d:q && started},
+    {l:"Active "+st.spDays+" days", a:started?("Day "+days+" of "+st.spDays):"—", d:q && started && days>=st.spDays},
+    {l:"Earn "+Math.round(st.spPct*100)+"%", a:r.reward>0?money2(r.reward):"Up to "+money(cap), d:r.reward>0},
+  ];
+  const pct = started ? Math.min(100, days/st.spDays*100) : 0;
+  return `<div class="track">
+    <div class="steps" style="--n:4">${steps.map(s => `<div class="step ${s.d?"done":""}"><span class="s-l">${esc(s.l)}</span><span class="s-a" style="font-size:13.5px">${esc(s.a)}</span></div>`).join("")}</div>
+    <div class="bar" role="img" aria-label="Day ${days} of ${st.spDays}"><i style="width:${pct}%"></i></div>
+    <div class="bar-l"><span class="num">${started ? `Accrued so far: ${money2(accrued)}` : "Reward starts accruing once billable work begins"}</span><span>${esc(r.tier||"Tier not set")} cap ${money(cap)}</span></div>
+  </div>`;
+}
+
+/* =========================================================================
+   Render: agent
+   ========================================================================= */
+function viewAgent(){
+  const d = S.data, me = d.me, refs = d.referrals.slice().reverse();
+  const earned = sum(refs,"reward"), paid = sum(refs,"paid"), due = refs.reduce((s,r) => s + Math.max(0, r.balance||0), 0);
+  const F = S.agentFilter;
+  const shown = refs.filter(r => F==="all" ? true
+    : F==="progress" ? (r.validation==="OK" && !["Not Qualified","Rejected"].includes(r.status) && !(isDA(r) ? (r.qaTasks||0)>=d.settings.m2Tasks && qualified(r) : r.reward>0))
+    : F==="earned" ? r.reward>0 : r.paymentStatus==="Paid");
+  const segs = [["all","All"],["progress","In progress"],["earned","Earned"],["paid","Paid"]];
+  const others = me.emails.filter(e => e!==me.email);
+  const pays = d.payouts.slice().sort((a,b) => (b.date||"").localeCompare(a.date||""));
+  const refName = id => (d.referrals.find(r => r.id===id)||{}).referredName || id;
+
+  return viewShell(`
+    <div class="head">
+      <div><h1>Hi, ${esc(first(me.name)||"there")}</h1>
+        <p class="sub muted">${others.length ? `Referrals made with <b>${esc(me.email)}</b> or <b>${others.map(esc).join("</b>, <b>")}</b> show up here.` : "Your referrals and rewards, updated as your referrals deliver."}</p></div>
+      <button class="btn primary lg" data-act="open-refer">Refer someone</button>
+    </div>
+    <div class="stats">
+      <div class="card stat"><span class="l">Referrals</span><span class="v">${refs.length}</span></div>
+      <div class="card stat"><span class="l">Rewards earned</span><span class="v">${money(earned)}</span></div>
+      <div class="card stat"><span class="l">Paid to you</span><span class="v">${money(paid)}</span></div>
+      <div class="card stat hl"><span class="l">Balance due</span><span class="v">${money(due)}</span></div>
+    </div>
+    <section class="section">
+      <div class="section-h"><h2>My referrals</h2>
+        <div class="seg" role="group" aria-label="Filter referrals">${segs.map(([k,l]) => `<button data-act="afilter" data-v="${k}" aria-pressed="${F===k}">${l}</button>`).join("")}</div></div>
+      <div class="rlist">
+        ${shown.length ? shown.map(r => `
+          <article class="card rcard">
+            <div class="rcard-top">
+              <div style="display:grid;gap:4px;min-width:0">
+                <span class="rcard-name">${esc(r.referredName)}</span>
+                <div class="rcard-meta">${progPill(r)}<span>${esc(r.role||"")}</span><span class="faint">Referred ${fdate(r.date)}</span></div>
+              </div>
+              <div class="pills">${statusPill(r.status)}${payPill(r.paymentStatus)}</div>
+            </div>
+            ${flagText(r) ? `<div class="flag">${esc(flagText(r))}</div>` : r.status==="Not Qualified"||r.status==="Rejected" ? `<div class="flag">This referral did not qualify, so no reward applies.</div>` : track(r)}
+            <div class="rcard-foot">
+              <span>Earned <b>${money2(r.reward)}</b></span><span>Paid <b>${money2(r.paid)}</b></span><span>Balance <b>${money2(Math.max(0,r.balance))}</b></span>
+              <span class="mono faint" style="margin-left:auto">${esc(r.id)}</span>
+            </div>
+          </article>`).join("")
+        : `<div class="card empty">${refs.length ? "No referrals match this filter." : "You haven't referred anyone yet. Use <b>Refer someone</b> to add your first referral."}</div>`}
+      </div>
+    </section>
+    ${pays.length ? `<section class="section"><h2>Payment history</h2>
+      <div class="card tbl-wrap"><table><thead><tr><th>Date</th><th>For</th><th>Method</th><th class="r">Amount</th></tr></thead><tbody>
+      ${pays.map(p => `<tr><td>${fdate(p.date)}</td><td>${esc(refName(p.referralId))} <span class="cell-2 mono">${esc(p.referralId)}</span></td><td>${esc(p.method||"—")}</td><td class="r num"><b>${money2(p.amount)}</b></td></tr>`).join("")}
+      </tbody></table></div></section>` : ""}
+    ${viewRules()}
+  `);
+}
+
+function viewRules(){
+  const st = S.data.settings;
+  return `<section class="section">
+    <h2>How rewards work</h2>
+    <div class="cols2">
+      <div class="card panel">
+        <div class="section-h"><h3>Data &amp; AI Talent / Agents</h3><span class="pill nodot p-blue">Up to ${money(st.m1Reward+st.m2Reward)}</span></div>
+        <p class="muted" style="font-size:14px">Two milestones, ${money(st.m1Reward)} each. Quality tasks unlock every reward.</p>
+        <div class="steps" style="--n:3">
+          <div class="step"><span class="s-l">Qualifies</span><span class="s-a">$0</span></div>
+          <div class="step"><span class="s-l">${st.m1Tasks} QA-approved tasks</span><span class="s-a">${money(st.m1Reward)}</span></div>
+          <div class="step"><span class="s-l">${st.m2Tasks} QA-approved tasks</span><span class="s-a">+${money(st.m2Reward)}</span></div>
+        </div>
+      </div>
+      <div class="card panel">
+        <div class="section-h"><h3>Specialist Talent</h3><span class="pill nodot p-green">${Math.round(st.spPct*100)}% of first ${st.spDays}-day earnings</span></div>
+        <p class="muted" style="font-size:14px">Qualifies → billable work → active ${st.spDays} days → earn ${Math.round(st.spPct*100)}%, capped by tier.</p>
+        <div class="tiers">${st.tiers.map(t => `<div class="tier"><span class="eyebrow">${esc(t.tier)}</span><span class="cap">${money(t.cap)}</span><span class="roles">${esc(t.roles)}</span></div>`).join("")}</div>
+      </div>
+    </div>
+    <div class="rules">
+      <div class="rule"><div><b>No reward for sign-up alone</b>Your referral has to qualify and deliver.</div></div>
+      <div class="rule"><div><b>QA-approved work required</b>Only approved tasks count toward milestones.</div></div>
+      <div class="rule"><div><b>First referrer receives credit</b>If two people refer the same person, the first one counts.</div></div>
+      <div class="rule"><div><b>No self-referrals or duplicates</b>Fraudulent referrals are removed.</div></div>
+      <div class="rule"><div><b>Reward tier is based on role</b>The referred person's role sets the program and tier.</div></div>
+    </div>
+  </section>`;
+}
+
+/* =========================================================================
+   Render: admin
+   ========================================================================= */
+function viewAdmin(){
+  const d = S.data;
+  const tabs = [["overview","Overview",null],["referrals","Referrals",d.referrals.length],["agents","Agents",d.agents.length],["payouts","Payouts",d.payouts.length],["access","Admin access",d.admins.length]];
+  const body = {overview:adminOverview,referrals:adminReferrals,agents:adminAgents,payouts:adminPayouts,access:adminAccess}[S.tab]();
+  return viewShell(`
+    <div class="head">
+      <div><h1>Referral admin</h1><p class="sub muted">Every referral across both programs. Update milestones, record payouts and manage who has access.</p></div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap">
+        ${d.sheetUrl ? `<a class="btn" href="${esc(d.sheetUrl)}" target="_blank" rel="noopener">Open tracker sheet</a>` : ""}
+        <button class="btn primary" data-act="open-refer">Add referral</button>
+      </div>
+    </div>
+    <nav class="tabs" role="tablist">${tabs.map(([k,l,c]) => `<button role="tab" data-act="tab" data-v="${k}" aria-selected="${S.tab===k}">${l}${c!=null?`<span class="count num">${c}</span>`:""}</button>`).join("")}</nav>
+    ${body}
+  `);
+}
+
+function adminOverview(){
+  const d = S.data, R = d.referrals;
+  const earned = sum(R,"reward"), paid = sum(R,"paid"), due = R.reduce((s,r) => s+Math.max(0,r.balance||0), 0);
+  const flagged = R.filter(r => r.validation && r.validation!=="OK");
+  const pending = R.filter(r => r.status==="Submitted" && r.validation==="OK");
+  const owing = R.filter(r => (r.balance||0) > 0);
+  const progs = ["Data & AI Talent","Specialist Talent"].map(p => { const x = R.filter(r => r.program===p); return {p, n:x.length, q:x.filter(qualified).length, e:sum(x,"reward"), due:x.reduce((s,r)=>s+Math.max(0,r.balance||0),0)}; });
+  const maxN = Math.max(1, ...progs.map(p => p.n));
+  const by = {};
+  R.forEach(r => { const a = d.agents.find(x => x.aoEmail===r.referrerEmail || x.personalEmail===r.referrerEmail); const k = a ? a.id : r.referrerEmail;
+    by[k] = by[k] || {name: a ? a.name : (r.referrerName||r.referrerEmail), n:0, e:0, due:0}; by[k].n++; by[k].e += r.reward||0; by[k].due += Math.max(0,r.balance||0); });
+  const top = Object.values(by).sort((a,b) => b.e-a.e || b.n-a.n).slice(0,6);
+  const attn = (list, label, note) => `<div class="card panel"><div class="section-h"><h3>${label}</h3><span class="pill nodot">${list.length}</span></div>
+    ${list.length ? `<div class="attn">${list.slice(0,5).map(r => `<button data-act="open-ref" data-id="${esc(r.id)}"><span><b>${esc(r.referredName)}</b><span class="cell-2">${esc(r.referrerName)} · ${esc(note(r))}</span></span><span class="mono faint">${esc(r.id)}</span></button>`).join("")}</div>` : `<p class="muted" style="font-size:14px">Nothing here.</p>`}</div>`;
+  return `
+    <div class="stats">
+      <div class="card stat"><span class="l">Referrals</span><span class="v">${R.length}</span></div>
+      <div class="card stat"><span class="l">Qualified or active</span><span class="v">${R.filter(qualified).length}</span></div>
+      <div class="card stat"><span class="l">Rewards earned</span><span class="v">${money(earned)}</span></div>
+      <div class="card stat"><span class="l">Paid out</span><span class="v">${money(paid)}</span></div>
+      <div class="card stat hl"><span class="l">Balance due</span><span class="v">${money(due)}</span></div>
+    </div>
+    <div class="cols2">
+      ${attn(owing, "Payments due", r => money2(r.balance)+" due")}
+      ${attn(pending, "Awaiting review", r => "submitted "+fdate(r.date))}
+    </div>
+    <div class="cols2">
+      <div class="card panel"><h3>By program</h3><div class="split">
+        ${progs.map(p => `<div class="split-row"><div class="top"><span>${p.p==="Data & AI Talent" ? progPill({program:p.p}) : '<span class="pill nodot p-green">Specialist</span>'}</span><span class="num muted">${p.n} referrals · ${p.q} qualified · <b style="color:var(--ink)">${money(p.e)}</b> earned</span></div>
+          <div class="bar"><i style="width:${p.n/maxN*100}%;background:${p.p==="Data & AI Talent"?"var(--blue)":"var(--green)"}"></i></div></div>`).join("")}
+      </div></div>
+      ${attn(flagged, "Flagged: duplicates and self-referrals", r => r.validation)}
+    </div>
+    <section class="section"><h2>Top referrers</h2>
+      <div class="card tbl-wrap"><table><thead><tr><th>Referrer</th><th class="r">Referrals</th><th class="r">Earned</th><th class="r">Balance due</th></tr></thead><tbody>
+      ${top.map(t => `<tr><td><b>${esc(t.name)}</b></td><td class="r num">${t.n}</td><td class="r num">${money2(t.e)}</td><td class="r num">${money2(t.due)}</td></tr>`).join("") || `<tr><td colspan="4" class="empty">No referrals yet.</td></tr>`}
+      </tbody></table></div></section>`;
+}
+
+function adminReferrals(){
+  const d = S.data, f = S.f, q = f.q.trim().toLowerCase();
+  const list = d.referrals.slice().reverse().filter(r =>
+    (!q || [r.id,r.referredName,r.referredEmail,r.referrerName,r.referrerEmail,r.role].join(" ").toLowerCase().includes(q)) &&
+    (!f.program || r.program===f.program) && (!f.status || r.status===f.status) &&
+    (!f.payment || (f.payment==="Flagged" ? r.validation!=="OK" : r.paymentStatus===f.payment)));
+  const opt = (v, cur, l) => `<option value="${esc(v)}" ${v===cur?"selected":""}>${esc(l||v)}</option>`;
+  return `
+    <div class="toolbar">
+      <input id="q" class="input" type="search" placeholder="Search name, email, ID or role" value="${esc(f.q)}" aria-label="Search referrals">
+      <select id="fp" class="input" aria-label="Program">${opt("",f.program,"All programs")}${opt("Data & AI Talent",f.program)}${opt("Specialist Talent",f.program)}</select>
+      <select id="fs" class="input" aria-label="Status">${opt("",f.status,"All statuses")}${["Submitted","Qualified","Active","Not Qualified","Rejected"].map(s => opt(s,f.status)).join("")}</select>
+      <select id="fy" class="input" aria-label="Payment">${opt("",f.payment,"All payments")}${["Due","Partially paid","Paid","Not yet earned","Flagged"].map(s => opt(s,f.payment)).join("")}</select>
+    </div>
+    <div class="card tbl-wrap"><table>
+      <thead><tr><th>Referred</th><th>Referrer</th><th>Program</th><th>Status</th><th>Progress</th><th class="r">Earned</th><th class="r">Balance</th><th>Payment</th></tr></thead>
+      <tbody>${list.map(r => `<tr class="click" data-act="open-ref" data-id="${esc(r.id)}" tabindex="0">
+        <td><b>${esc(r.referredName)}</b><span class="cell-2">${esc(r.referredEmail)}</span><span class="cell-2 mono">${esc(r.id)} · ${fdate(r.date)}</span></td>
+        <td>${esc(r.referrerName)}<span class="cell-2">${esc(r.referrerEmail)}</span></td>
+        <td>${progPill(r)}</td>
+        <td>${statusPill(r.status)}${r.validation && r.validation!=="OK" ? `<div style="margin-top:4px"><span class="pill p-red">${esc(r.validation)}</span></div>` : ""}</td>
+        <td style="min-width:170px;font-size:13px" class="muted">${esc(r.progress)}</td>
+        <td class="r num">${money2(r.reward)}</td><td class="r num">${money2(Math.max(0,r.balance))}</td>
+        <td>${payPill(r.paymentStatus)}</td></tr>`).join("") || `<tr><td colspan="8" class="empty">No referrals match these filters.</td></tr>`}</tbody>
+    </table></div>
+    <p class="faint" style="font-size:13px">Showing ${list.length} of ${d.referrals.length}. Select a referral to update its milestones or record a payout.</p>`;
+}
+
+function adminAgents(){
+  const d = S.data;
+  const stats = a => { const x = d.referrals.filter(r => r.referrerEmail===a.aoEmail || r.referrerEmail===a.personalEmail); return {n:x.length, e:sum(x,"reward")}; };
+  return `
+    <div class="section-h"><p class="muted" style="max-width:70ch">Agents sign in with either email below. Referrals logged under either address belong to the same agent. Inactive agents can't sign in.</p>
+      <button class="btn primary" data-act="open-agent">Add agent</button></div>
+    <div class="card tbl-wrap"><table>
+      <thead><tr><th>Agent</th><th>Agents Only email</th><th>Personal email</th><th>Status</th><th class="r">Referrals</th><th class="r">Earned</th><th></th></tr></thead>
+      <tbody>${d.agents.map(a => { const s = stats(a); return `<tr>
+        <td><b>${esc(a.name)}</b><span class="cell-2 mono">${esc(a.id)}</span></td>
+        <td>${esc(a.aoEmail||"—")}</td><td>${esc(a.personalEmail||"—")}</td>
+        <td><span class="pill ${a.status==="Inactive"?"":"p-teal"}">${esc(a.status)}</span></td>
+        <td class="r num">${s.n}</td><td class="r num">${money2(s.e)}</td>
+        <td class="r"><button class="btn sm" data-act="open-agent" data-id="${esc(a.id)}">Edit</button></td></tr>`; }).join("") || `<tr><td colspan="7" class="empty">No agents yet. Add one so they can sign in.</td></tr>`}</tbody>
+    </table></div>`;
+}
+
+function adminPayouts(){
+  const d = S.data, list = d.payouts.slice().sort((a,b) => (b.date||"").localeCompare(a.date||""));
+  const ref = id => d.referrals.find(r => r.id===id) || {};
+  return `
+    <p class="muted">Record payouts from a referral's detail panel. Total paid: <b style="color:var(--ink)">${money2(sum(list,"amount"))}</b></p>
+    <div class="card tbl-wrap"><table>
+      <thead><tr><th>Date</th><th>Referral</th><th>Referrer</th><th>Method</th><th>Reference</th><th class="r">Amount</th><th></th></tr></thead>
+      <tbody>${list.map(p => { const r = ref(p.referralId); return `<tr>
+        <td>${fdate(p.date)}<span class="cell-2 mono">${esc(p.id)}</span></td>
+        <td>${esc(r.referredName||"—")}<span class="cell-2 mono">${esc(p.referralId)}</span></td>
+        <td>${esc(r.referrerName||p.referrerEmail||"—")}</td><td>${esc(p.method||"—")}</td>
+        <td>${esc(p.reference||"—")}<span class="cell-2">by ${esc(p.recordedBy||"—")}</span></td>
+        <td class="r num"><b>${money2(p.amount)}</b></td>
+        <td class="r"><button class="btn sm danger ${S.armed==="pay:"+p.id?"armed":""}" data-act="del-pay" data-id="${esc(p.id)}">${S.armed==="pay:"+p.id?"Confirm delete":"Delete"}</button></td></tr>`; }).join("") || `<tr><td colspan="7" class="empty">No payouts recorded yet.</td></tr>`}</tbody>
+    </table></div>`;
+}
+
+function adminAccess(){
+  const d = S.data, me = d.me.email;
+  return `
+    <div class="cols2">
+      <div class="card"><div class="panel" style="padding-bottom:0"><h3>Admin emails</h3>
+        <p class="muted" style="font-size:14px">Anyone on this list gets the admin view and can see every referral. Everyone else only sees their own referrals.</p></div>
+        <div class="admins" style="margin-top:8px">${d.admins.map(e => `<div class="row"><span>${esc(e)}${e===me?' <span class="pill nodot p-teal">You</span>':""}</span>
+          ${e===me ? '<span class="faint" style="font-size:12.5px">Can\'t remove yourself</span>' : `<button class="btn sm danger ${S.armed==="adm:"+e?"armed":""}" data-act="del-admin" data-email="${esc(e)}">${S.armed==="adm:"+e?"Confirm remove":"Remove"}</button>`}</div>`).join("")}</div>
+      </div>
+      <form id="f-admin" class="card panel" novalidate>
+        <h3>Add an admin</h3>
+        <div class="err-slot" role="alert"></div>
+        <div class="field"><label for="new-admin">Email address</label><input id="new-admin" class="input" type="email" placeholder="name@agentsonly.com" required></div>
+        <button class="btn primary" type="submit" ${S.busy?"disabled":""}>Add admin</button>
+        <p class="faint" style="font-size:12.5px">${d.ownerEmail ? `The spreadsheet owner (${esc(d.ownerEmail)}) always keeps admin access as a safety net.` : ""} Changes take effect on the person's next action; they don't need to sign in again.</p>
+      </form>
+    </div>`;
+}
+
+/* ---------- referral drawer (admin) ---------- */
+function viewDrawer(){
+  const d = S.data, r = d.referrals.find(x => x.id===S.drawer);
+  if (!r) return "";
+  const pays = d.payouts.filter(p => p.referralId===r.id);
+  const opt = (v,cur) => `<option ${v===cur?"selected":""}>${esc(v)}</option>`;
+  return `<div class="scrim" data-act="close-overlay"><aside class="drawer" role="dialog" aria-modal="true" aria-label="Referral ${esc(r.id)}" data-stop>
+    <div class="drawer-h"><div style="display:grid;gap:4px;min-width:0"><span class="mono faint">${esc(r.id)} · referred ${fdate(r.date)}</span><h2>${esc(r.referredName)}</h2>
+      <span class="muted" style="font-size:13px">by ${esc(r.referrerName)} (${esc(r.referrerEmail)})</span></div>
+      <button class="btn sm" data-act="close-overlay" aria-label="Close">Close</button></div>
+    <div class="drawer-b">
+      <div class="err-slot" role="alert">${S.error ? `<div class="err">${esc(S.error)}</div>` : ""}</div>
+      ${flagText(r) ? `<div class="flag">${esc(flagText(r))}</div>` : ""}
+      <div class="kv"><div><span class="k">Earned</span><div class="v">${money2(r.reward)}</div></div><div><span class="k">Paid</span><div class="v">${money2(r.paid)}</div></div>
+        <div><span class="k">Balance</span><div class="v">${money2(Math.max(0,r.balance))}</div></div><div><span class="k">Payment</span><div style="margin-top:4px">${payPill(r.paymentStatus)}</div></div></div>
+      <div class="card panel">${track(r)}</div>
+      <form id="f-ref" class="card panel" novalidate>
+        <h3>Update referral</h3>
+        <div class="grid2">
+          <div class="field"><label for="e-name">Referred name</label><input id="e-name" class="input" value="${esc(r.referredName)}"></div>
+          <div class="field"><label for="e-email">Referred email</label><input id="e-email" class="input" type="email" value="${esc(r.referredEmail)}"></div>
+          <div class="field"><label for="e-program">Program</label><select id="e-program" class="input">${opt("Data & AI Talent",r.program)}${opt("Specialist Talent",r.program)}</select></div>
+          <div class="field"><label for="e-tier">Specialist tier</label><select id="e-tier" class="input"><option value="">—</option>${d.settings.tiers.map(t => `<option value="${esc(t.tier)}" ${t.tier===r.tier?"selected":""}>${esc(t.tier)} · ${money(t.cap)} cap</option>`).join("")}</select></div>
+          <div class="field"><label for="e-role">Role / skill</label><input id="e-role" class="input" value="${esc(r.role)}"></div>
+          <div class="field"><label for="e-status">Status</label><select id="e-status" class="input">${["Submitted","Qualified","Active","Not Qualified","Rejected"].map(s => opt(s,r.status)).join("")}</select></div>
+          <div class="field"><label for="e-qdate">Qualified date</label><input id="e-qdate" class="input" type="date" value="${esc(r.qualifiedDate)}"><span class="hint">Set automatically when you mark it Qualified.</span></div>
+          <div class="field" ${isDA(r)?"":"hidden"}><label for="e-qa">QA-approved tasks</label><input id="e-qa" class="input" type="number" min="0" step="1" value="${r.qaTasks==null?"":r.qaTasks}"></div>
+          <div class="field" ${isDA(r)?"hidden":""}><label for="e-bs">Billable start date</label><input id="e-bs" class="input" type="date" value="${esc(r.billableStart)}"></div>
+          <div class="field" ${isDA(r)?"hidden":""}><label for="e-earn">First 30-day earnings ($)</label><input id="e-earn" class="input" type="number" min="0" step="0.01" value="${r.earnings30==null?"":r.earnings30}"></div>
+        </div>
+        <div class="field"><label for="e-notes">Internal notes</label><textarea id="e-notes" class="input" placeholder="Visible to admins only">${esc(r.notes)}</textarea></div>
+        <div style="display:flex;gap:10px;justify-content:space-between;flex-wrap:wrap">
+          <button type="button" class="btn danger ${S.armed==="ref:"+r.id?"armed":""}" data-act="del-ref" data-id="${esc(r.id)}">${S.armed==="ref:"+r.id?"Confirm delete":"Delete referral"}</button>
+          <button class="btn primary" type="submit" ${S.busy?"disabled":""}>${S.busy?'<span class="spinner"></span>':""}Save changes</button>
+        </div>
+      </form>
+      <form id="f-pay" class="card panel" novalidate>
+        <h3>Payouts</h3>
+        ${pays.length ? `<div class="tbl-wrap"><table><tbody>${pays.map(p => `<tr><td>${fdate(p.date)}<span class="cell-2">${esc(p.method||"")} ${esc(p.reference||"")}</span></td><td class="r num"><b>${money2(p.amount)}</b></td></tr>`).join("")}</tbody></table></div>` : `<p class="muted" style="font-size:14px">No payouts yet.</p>`}
+        <div class="grid2">
+          <div class="field"><label for="p-amt">Amount ($)</label><input id="p-amt" class="input" type="number" min="0" step="0.01" value="${r.balance>0?r.balance:""}"></div>
+          <div class="field"><label for="p-date">Date paid</label><input id="p-date" class="input" type="date" value="${todayIso()}"></div>
+          <div class="field"><label for="p-method">Method</label><select id="p-method" class="input">${["GCash","Bank transfer","PayPal","Payoneer","Wise","Other"].map(m => `<option>${m}</option>`).join("")}</select></div>
+          <div class="field"><label for="p-ref">Reference</label><input id="p-ref" class="input" placeholder="Transaction no."></div>
+        </div>
+        <button class="btn" type="submit" ${S.busy?"disabled":""}>Record payout</button>
+      </form>
+    </div></aside></div>`;
+}
+
+/* ---------- modals ---------- */
+function viewModal(){
+  const d = S.data, m = S.modal, me = d.me;
+  if (m.type === "refer"){
+    const st = d.settings, v = m.v || {};
+    const activeAgents = (d.agents||[]).filter(a => a.status!=="Inactive");
+    return `<div class="scrim center" data-act="close-overlay"><form id="f-refer" class="modal" role="dialog" aria-modal="true" aria-labelledby="mt" data-stop novalidate>
+      <div class="modal-h"><h2 id="mt">${me.isAdmin ? "Add a referral" : "Refer someone"}</h2><button type="button" class="btn sm" data-act="close-overlay">Cancel</button></div>
+      <div class="modal-b">
+        <div class="err-slot" role="alert">${S.error ? `<div class="err">${esc(S.error)}</div>` : ""}</div>
+        ${me.isAdmin ? `<div class="field"><label for="r-referrer">Referrer</label><select id="r-referrer" class="input">
+            <option value="">Choose the agent who made the referral</option>
+            ${activeAgents.map(a => `<option value="${esc(a.aoEmail||a.personalEmail)}" ${v.referrerEmail===(a.aoEmail||a.personalEmail)?"selected":""}>${esc(a.name)} · ${esc(a.aoEmail||a.personalEmail)}</option>`).join("")}</select></div>` : ""}
+        <div class="grid2">
+          <div class="field"><label for="r-name">Their full name</label><input id="r-name" class="input" autocomplete="off" value="${esc(v.referredName||"")}"></div>
+          <div class="field"><label for="r-email">Their email</label><input id="r-email" class="input" type="email" autocomplete="off" value="${esc(v.referredEmail||"")}"></div>
+        </div>
+        <fieldset style="border:0;padding:0;margin:0" class="field"><legend style="font-size:13px;font-weight:600;color:var(--ink-2);margin-bottom:6px">Program</legend>
+          <div class="choice">
+            <label><input type="radio" name="r-prog" value="Data & AI Talent" ${v.program!=="Specialist Talent"?"checked":""}><span class="ct">Data &amp; AI Talent / Agents</span><span class="cd">Up to ${money(st.m1Reward+st.m2Reward)} over ${st.m2Tasks} QA-approved tasks</span></label>
+            <label><input type="radio" name="r-prog" value="Specialist Talent" ${v.program==="Specialist Talent"?"checked":""}><span class="ct">Specialist Talent</span><span class="cd">${Math.round(st.spPct*100)}% of first ${st.spDays}-day earnings, up to ${money(Math.max(...st.tiers.map(t=>t.cap)))}</span></label>
+          </div></fieldset>
+        <div class="field" id="tier-field" ${v.program==="Specialist Talent"?"":"hidden"}><label for="r-tier">Specialist tier (based on their role)</label>
+          <select id="r-tier" class="input"><option value="">Choose a tier</option>${st.tiers.map(t => `<option value="${esc(t.tier)}" ${v.tier===t.tier?"selected":""}>${esc(t.tier)} · up to ${money(t.cap)} · ${esc(t.roles)}</option>`).join("")}</select></div>
+        <div class="field"><label for="r-role">Role or skill</label><input id="r-role" class="input" placeholder="e.g. Annotation, Clinical/Pharma, Security" value="${esc(v.role||"")}"></div>
+        ${me.isAdmin ? `<div class="field"><label for="r-notes">Internal notes</label><textarea id="r-notes" class="input">${esc(v.notes||"")}</textarea></div>` : ""}
+        <p class="faint" style="font-size:12.5px">Refer someone you trust to deliver quality work. Rewards unlock only after they qualify and complete QA-approved or billable work.</p>
+      </div>
+      <div class="modal-f"><button type="button" class="btn" data-act="close-overlay">Cancel</button><button class="btn primary" type="submit" ${S.busy?"disabled":""}>${S.busy?'<span class="spinner"></span>':""}Submit referral</button></div>
+    </form></div>`;
+  }
+  if (m.type === "agent"){
+    const a = (d.agents||[]).find(x => x.id===m.id) || {status:"Active"};
+    return `<div class="scrim center" data-act="close-overlay"><form id="f-agent" class="modal" role="dialog" aria-modal="true" aria-labelledby="mt" data-stop novalidate>
+      <div class="modal-h"><h2 id="mt">${a.id ? "Edit agent" : "Add agent"}</h2><button type="button" class="btn sm" data-act="close-overlay">Cancel</button></div>
+      <div class="modal-b">
+        <div class="err-slot" role="alert">${S.error ? `<div class="err">${esc(S.error)}</div>` : ""}</div>
+        <div class="field"><label for="a-name">Full name</label><input id="a-name" class="input" value="${esc(a.name||"")}"></div>
+        <div class="grid2">
+          <div class="field"><label for="a-ao">Agents Only email</label><input id="a-ao" class="input" type="email" placeholder="name@agentsonly.com" value="${esc(a.aoEmail||"")}"></div>
+          <div class="field"><label for="a-pe">Personal email</label><input id="a-pe" class="input" type="email" placeholder="name@gmail.com" value="${esc(a.personalEmail||"")}"></div>
+        </div>
+        <p class="faint" style="font-size:12.5px">Either email can be used to sign in. At least one is required.</p>
+        <div class="field"><label for="a-status">Status</label><select id="a-status" class="input"><option ${a.status!=="Inactive"?"selected":""}>Active</option><option ${a.status==="Inactive"?"selected":""}>Inactive</option></select></div>
+        <div class="field"><label for="a-notes">Notes</label><textarea id="a-notes" class="input">${esc(a.notes||"")}</textarea></div>
+      </div>
+      <div class="modal-f"><button type="button" class="btn" data-act="close-overlay">Cancel</button><button class="btn primary" type="submit" ${S.busy?"disabled":""}>${a.id?"Save agent":"Add agent"}</button></div>
+    </form></div>`;
+  }
+  return "";
+}
+
+/* =========================================================================
+   Render root (preserves focus + scroll for inputs)
+   ========================================================================= */
+function render(){
+  const act = document.activeElement, id = act && act.id, sel = act && "selectionStart" in act ? [act.selectionStart, act.selectionEnd] : null;
+  const dr = document.querySelector(".drawer"), drTop = dr ? dr.scrollTop : 0;
+  const app = document.getElementById("app");
+  app.innerHTML = !S.data ? viewLogin() : S.data.me.isAdmin ? viewAdmin() : viewAgent();
+  if (id){ const el = document.getElementById(id); if (el){ el.focus(); if (sel && el.setSelectionRange) try { el.setSelectionRange(sel[0], sel[1]); } catch(e){} } }
+  const dr2 = document.querySelector(".drawer"); if (dr2) dr2.scrollTop = drTop;
+  if (!S.data && S.login.step === "email") drawGoogleButton();
+}
+
+/* =========================================================================
+   Events
+   ========================================================================= */
+const val = id => { const el = document.getElementById(id); return el ? el.value : ""; };
+function readReferForm(){
+  const prog = (document.querySelector('input[name="r-prog"]:checked')||{}).value || "Data & AI Talent";
+  return { referrerEmail: val("r-referrer"), referredName: val("r-name"), referredEmail: val("r-email"), program: prog, tier: prog==="Specialist Talent" ? val("r-tier") : "", role: val("r-role"), notes: val("r-notes") };
+}
+
+document.addEventListener("click", async e => {
+  const t = e.target.closest("[data-act]");
+  if (!t) return;
+  const a = t.dataset.act;
+  if (a === "close-overlay"){
+    if (t.classList.contains("scrim") && e.target !== t) return;
+    S.drawer = null; S.modal = null; S.error = ""; S.armed = null; render(); return;
+  }
+  if (a !== "del-pay" && a !== "del-admin" && a !== "del-ref") S.armed = null;
+  switch(a){
+    case "demo-google": { const res = await run("googleSignIn", ["demo:bsamarista@agentsonly.com"]); if (res){ S.token = res.token; S.data = res.data; S.tab = "overview"; render(); toast("Demo: signed in with Google as bsamarista@agentsonly.com"); } break; }
+    case "demo": S.login.email = t.dataset.email; S.error = ""; await doRequestCode(t.dataset.email); break;
+    case "login-back": S.login = { step:"email", email:S.login.email }; S.error = ""; S.notice = ""; render(); break;
+    case "resend": await doRequestCode(S.login.email); break;
+    case "signout": signOutLocal(""); break;
+    case "afilter": S.agentFilter = t.dataset.v; render(); break;
+    case "tab": S.tab = t.dataset.v; S.error = ""; render(); break;
+    case "open-refer": S.modal = { type:"refer", v:{} }; S.error = ""; render(); setTimeout(() => { const i = $(S.data.me.isAdmin ? "#r-referrer" : "#r-name"); i && i.focus(); }, 20); break;
+    case "open-agent": S.modal = { type:"agent", id:t.dataset.id||null }; S.error = ""; render(); break;
+    case "open-ref": S.drawer = t.dataset.id; S.error = ""; render(); break;
+    case "del-pay":
+      if (S.armed !== "pay:"+t.dataset.id){ S.armed = "pay:"+t.dataset.id; render(); break; }
+      S.armed = null; await mutate("deletePayout", [t.dataset.id], "Payout deleted"); break;
+    case "del-admin":
+      if (S.armed !== "adm:"+t.dataset.email){ S.armed = "adm:"+t.dataset.email; render(); break; }
+      S.armed = null; await mutate("saveAdmins", [S.data.admins.filter(x => x !== t.dataset.email)], "Admin removed"); break;
+    case "del-ref":
+      if (S.armed !== "ref:"+t.dataset.id){ S.armed = "ref:"+t.dataset.id; render(); break; }
+      S.armed = null; await mutate("deleteReferral", [t.dataset.id], "Referral deleted", () => { S.drawer = null; }); break;
+  }
+});
+document.addEventListener("keydown", e => {
+  if (e.key === "Escape" && (S.drawer || S.modal)){ S.drawer = null; S.modal = null; S.error = ""; render(); }
+  if (e.key === "Enter" && e.target.matches("tr.click")) e.target.click();
+});
+
+document.addEventListener("input", e => {
+  const id = e.target.id;
+  if (id === "q"){ S.f.q = e.target.value; render(); }
+  if (id === "code" && e.target.value.replace(/\D/g,"").length === 6 && !S.busy) doVerify(e.target.value);
+});
+document.addEventListener("change", e => {
+  const id = e.target.id, v = e.target.value;
+  if (id === "fp"){ S.f.program = v; render(); }
+  if (id === "fs"){ S.f.status = v; render(); }
+  if (id === "fy"){ S.f.payment = v; render(); }
+  if (e.target.name === "r-prog"){ S.modal.v = readReferForm(); render(); }
+  if (id === "e-program"){ const sp = v === "Specialist Talent"; ["e-qa"].forEach(x => $("#"+x).closest(".field").hidden = sp); ["e-bs","e-earn"].forEach(x => $("#"+x).closest(".field").hidden = !sp); }
+});
+
+document.addEventListener("submit", async e => {
+  e.preventDefault();
+  const id = e.target.id;
+  if (id === "f-email"){ S.login.email = val("email"); await doRequestCode(val("email")); }
+  if (id === "f-code"){ await doVerify(val("code")); }
+  if (id === "f-refer"){
+    const f = readReferForm(); S.modal.v = f;
+    if (S.data.me.isAdmin && !f.referrerEmail){ showError("Choose the agent who made the referral."); return; }
+    if (S.data.me.emails.includes(f.referredEmail.trim().toLowerCase()) && !S.data.me.isAdmin){ showError("Self-referrals are not allowed. Enter the email of the person you are referring."); return; }
+    await mutate("submitReferral", [f], "Referral submitted", () => { S.modal = null; S.agentFilter = "all"; S.error = ""; });
+  }
+  if (id === "f-agent"){
+    await mutate("saveAgent", [{ id:S.modal.id, name:val("a-name"), aoEmail:val("a-ao"), personalEmail:val("a-pe"), status:val("a-status"), notes:val("a-notes") }], S.modal.id ? "Agent saved" : "Agent added", () => { S.modal = null; S.error = ""; });
+  }
+  if (id === "f-ref"){
+    const sp = val("e-program") === "Specialist Talent";
+    const patch = { referredName:val("e-name"), referredEmail:val("e-email"), program:val("e-program"), tier: sp ? val("e-tier") : "", role:val("e-role"), status:val("e-status"), qualifiedDate:val("e-qdate"), notes:val("e-notes") };
+    if (sp){ patch.billableStart = val("e-bs"); patch.earnings30 = val("e-earn"); } else { patch.qaTasks = val("e-qa"); }
+    if (sp && !patch.tier){ showError("Choose a specialist tier."); return; }
+    await mutate("updateReferral", [S.drawer, patch], "Referral updated", () => { S.error = ""; });
+  }
+  if (id === "f-pay"){
+    await mutate("recordPayout", [{ referralId:S.drawer, amount:val("p-amt"), date:val("p-date"), method:val("p-method"), reference:val("p-ref") }], "Payout recorded", () => { S.error = ""; });
+  }
+  if (id === "f-admin"){
+    const em = val("new-admin").trim().toLowerCase();
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(em)){ showError("Enter a valid email address."); return; }
+    if (S.data.admins.includes(em)){ showError(em + " is already an admin."); return; }
+    await mutate("saveAdmins", [S.data.admins.concat(em)], "Admin added", () => { S.error = ""; });
+  }
+});
+
+/* =========================================================================
+   Boot
+   ========================================================================= */
+(async function boot(){
+  loadGoogle();
+  const t = LIVE ? store.get() : null;
+  if (t){
+    try { S.data = await call("getPortalData", t); S.token = t; }
+    catch(e){ store.set(null); }
+  }
+  render();
+})();
+})();
+</script>
