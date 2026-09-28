@@ -1,3 +1,4 @@
+<meta charset="utf-8">
 <title>Referral Program Portal</title>
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -245,14 +246,14 @@ tbody tr.click:hover td{background:var(--surface-2)}
 .loading{display:grid;place-items:center;min-height:60vh;color:var(--ink-2);gap:12px}
 </style>
 
-<div id="app"><div class="loading"><span class="spinner"></span>Loading…</div></div>
+<div id="app"><div class="loading"><span class="spinner"></span>Loading&#x2026;</div></div>
 
 <script>
 (function(){
 "use strict";
 
 /* =========================================================================
-   SETTINGS — fill these in only when hosting this page outside Apps Script
+   SETTINGS \u2014 fill these in only when hosting this page outside Apps Script
    (e.g. GitHub Pages). Leave both empty when Apps Script serves the page.
    ========================================================================= */
 const CONFIG = {
@@ -321,7 +322,7 @@ async function onGoogleCredential(resp){
 const clone = o => JSON.parse(JSON.stringify(o));
 
 /* =========================================================================
-   Demo backend — mirrors Code.gs rules so the portal can be tried without a sheet
+   Demo backend \u2014 mirrors Code.gs rules so the portal can be tried without a sheet
    ========================================================================= */
 const Demo = (function(){
   const day = 864e5;
@@ -338,39 +339,91 @@ const Demo = (function(){
     {"id": "AG-0003", "name": "J. Buala", "aoEmail": "jbuala@agentsonly.com", "personalEmail": "", "status": "Active", "notes": ""},
     {"id": "AG-0004", "name": "A. Alvarez", "aoEmail": "aalvarez@agentsonly.com", "personalEmail": "", "status": "Active", "notes": ""},
     {"id": "AG-0005", "name": "E. Alvarez", "aoEmail": "ealvarez@agentsonly.com", "personalEmail": "", "status": "Active", "notes": ""},
+    {"id": "AG-0006", "name": "Eden Magallanes", "aoEmail": "", "personalEmail": "memagallanes@gmail.com", "status": "Active", "notes": ""},
   ];
   const R = (id,date,rE,rN,dN,dE,program,tier,role,status,q,qa,bs,earn,notes) =>
     ({id,date,referrerEmail:rE,referrerName:rN,referredName:dN,referredEmail:dE,program,tier,role,status,qualifiedDate:q,qaTasks:qa,billableStart:bs,earnings30:earn,notes:notes||""});
   let referrals = [
-    R("REF-0001","2026-07-06","bsamarista@agentsonly.com","B. Samarista","Carla Mendoza","carla.mendoza@example.com","Data & AI Talent","","Annotation","Active","2026-07-09",26,"",null,""),
-    R("REF-0002","2026-07-10","bsamarista@agentsonly.com","B. Samarista","Ramon Villareal","ramon.v@example.com","Specialist Talent","Tier 2","Coding (Python)","Active","2026-07-14",null,"2026-07-20",2600,""),
-    R("REF-0003","2026-08-18","bsamarista@agentsonly.com","B. Samarista","Liza Fernandez","liza.fernandez@example.com","Data & AI Talent","","Data labeling","Active","2026-08-20",13,"",null,""),
-    R("REF-0004","2026-09-15","bsamarista@agentsonly.com","B. Samarista","Noel Garcia","noel.garcia@example.com","Specialist Talent","Tier 3","Security","Qualified","2026-09-19",null,"",null,"Onboarding scheduled"),
-    R("REF-0005","2026-07-02","mar.quint@hotmail.com","M. Quint","Patricia Lim","patricia.lim@example.com","Specialist Talent","Tier 1","Medical","Active","2026-07-06",null,"2026-07-10",2400,"First half paid"),
-    R("REF-0006","2026-08-01","mar.quint@hotmail.com","M. Quint","Jerome Santos","jerome.santos@example.com","Data & AI Talent","","Search evaluation","Active","2026-08-04",21,"",null,""),
-    R("REF-0007","2026-09-08","mar.quint@hotmail.com","M. Quint","Angela Cruz","angela.cruz@example.com","Data & AI Talent","","Transcription","Qualified","2026-09-12",4,"",null,""),
-    R("REF-0008","2026-09-20","mar.quint@hotmail.com","M. Quint","Victor Reyes","victor.reyes@example.com","Specialist Talent","Tier 2","Adv. Math","Submitted","",null,"",null,""),
-    R("REF-0009","2026-07-20","jbuala@agentsonly.com","J. Buala","Kristine Aquino","kristine.aquino@example.com","Specialist Talent","Tier 3","Agentic Coding","Active","2026-07-24",null,"2026-08-01",5200,"Hit the Tier 3 cap"),
-    R("REF-0010","2026-08-05","jbuala@agentsonly.com","J. Buala","Mark Dizon","mark.dizon@example.com","Data & AI Talent","","Annotation","Active","2026-08-08",17,"",null,""),
-    R("REF-0011","2026-08-25","jbuala@agentsonly.com","J. Buala","Carla Mendoza","carla.mendoza@example.com","Data & AI Talent","","Annotation","Submitted","",null,"",null,"Already referred by B. Samarista"),
-    R("REF-0012","2026-09-10","jbuala@agentsonly.com","J. Buala","Paolo Bautista","paolo.bautista@example.com","Data & AI Talent","","Rating & ranking","Not Qualified","",null,"",null,"Did not pass the assessment"),
-    R("REF-0013","2026-07-28","aalvarez@agentsonly.com","A. Alvarez","Grace Tan","grace.tan@example.com","Specialist Talent","Tier 2","Clinical/Pharma","Active","2026-08-01",null,"2026-08-10",3400,""),
-    R("REF-0014","2026-08-12","aalvarez@agentsonly.com","A. Alvarez","Daniel Ong","daniel.ong@example.com","Data & AI Talent","","Data labeling","Active","2026-08-15",20,"",null,""),
-    R("REF-0015","2026-09-03","aalvarez@agentsonly.com","A. Alvarez","Sofia Ramirez","sofia.ramirez@example.com","Specialist Talent","Tier 1","Software","Active","2026-09-06",null,"2026-09-10",900,""),
-    R("REF-0016","2026-09-18","aalvarez@agentsonly.com","A. Alvarez","Miguel Herrera","miguel.herrera@example.com","Data & AI Talent","","Annotation","Submitted","",null,"",null,""),
-    R("REF-0017","2026-07-15","ealvarez@agentsonly.com","E. Alvarez","Hannah Lopez","hannah.lopez@example.com","Data & AI Talent","","Annotation","Active","2026-07-18",30,"",null,""),
-    R("REF-0018","2026-08-08","ealvarez@agentsonly.com","E. Alvarez","Leo Navarro","leo.navarro@example.com","Specialist Talent","Tier 3","Quant","Active","2026-08-11",null,"2026-08-18",3000,""),
-    R("REF-0019","2026-09-01","ealvarez@agentsonly.com","E. Alvarez","Ivy Castillo","ivy.castillo@example.com","Data & AI Talent","","Transcription","Active","2026-09-04",11,"",null,""),
-    R("REF-0020","2026-09-12","ealvarez@agentsonly.com","E. Alvarez","E. Alvarez","ealvarez@agentsonly.com","Data & AI Talent","","Annotation","Rejected","",null,"",null,"Self-referral"),
-    R("REF-0021","2026-09-22","bsamarista@agentsonly.com","B. Samarista","Nina Flores","nina.flores@example.com","Specialist Talent","Tier 1","STEM","Submitted","",null,"",null,""),
+    R("REF-0001","2026-07-05","bsamarista@agentsonly.com","B. Samarista","Carla Mendoza","carla.mendoza@example.com","Specialist Talent","Tier 1","Software","Active","2026-07-09",null,"2026-07-14",2600,"Scenario 1: Specialist earned, hit the Tier 1 cap, fully paid"),
+    R("REF-0002","2026-07-08","mar.quint@hotmail.com","M. Quint","Mark Garcia","mark.garcia@example.com","Specialist Talent","Tier 2","Coding (Python)","Active","2026-07-12",null,"2026-07-17",3900,"Scenario 1: Specialist earned, hit the Tier 2 cap, fully paid"),
+    R("REF-0003","2026-07-11","jbuala@agentsonly.com","J. Buala","Nina Cruz","nina.cruz@example.com","Specialist Talent","Tier 3","Quant","Active","2026-07-15",null,"2026-07-20",5200,"Scenario 1: Specialist earned, hit the Tier 3 cap, fully paid"),
+    R("REF-0004","2026-07-12","bsamarista@agentsonly.com","B. Samarista","Ramon Reyes","ramon.reyes@example.com","Data & AI Talent","","Rating & ranking","Active","2026-07-15",22,"",null,"Scenario 2: Data & AI both milestones ($40), partially paid"),
+    R("REF-0005","2026-07-14","aalvarez@agentsonly.com","A. Alvarez","Andrea Dizon","andrea.dizon@example.com","Specialist Talent","Tier 1","Software","Active","2026-07-18",null,"2026-07-23",2600,"Scenario 1: Specialist earned, hit the Tier 1 cap, fully paid"),
+    R("REF-0006","2026-07-15","mar.quint@hotmail.com","M. Quint","Paolo Bautista","paolo.bautista@example.com","Data & AI Talent","","Data labeling","Active","2026-07-18",23,"",null,"Scenario 2: Data & AI both milestones ($40), partially paid"),
+    R("REF-0007","2026-07-17","ealvarez@agentsonly.com","E. Alvarez","Kevin Ong","kevin.ong@example.com","Specialist Talent","Tier 2","ML","Active","2026-07-21",null,"2026-07-26",3900,"Scenario 1: Specialist earned, hit the Tier 2 cap, fully paid"),
+    R("REF-0008","2026-07-18","jbuala@agentsonly.com","J. Buala","Rhea Ramirez","rhea.ramirez@example.com","Data & AI Talent","","Search evaluation","Active","2026-07-21",24,"",null,"Scenario 2: Data & AI both milestones ($40), partially paid"),
+    R("REF-0009","2026-07-20","memagallanes@gmail.com","Eden Magallanes","Rosa Lopez","rosa.lopez@example.com","Specialist Talent","Tier 3","Legal","Active","2026-07-24",null,"2026-07-29",5200,"Scenario 1: Specialist earned, hit the Tier 3 cap, fully paid"),
+    R("REF-0010","2026-07-21","aalvarez@agentsonly.com","A. Alvarez","Felix Navarro","felix.navarro@example.com","Data & AI Talent","","Annotation","Active","2026-07-24",25,"",null,"Scenario 2: Data & AI both milestones ($40), partially paid"),
+    R("REF-0011","2026-07-24","bsamarista@agentsonly.com","B. Samarista","Liza Herrera","liza.herrera@example.com","Specialist Talent","Tier 2","ML","Active","2026-07-28",null,"2026-08-04",2100,"Scenario 3: Specialist earned under the cap, payment due"),
+    R("REF-0012","2026-07-24","ealvarez@agentsonly.com","E. Alvarez","Aileen Domingo","aileen.domingo@example.com","Data & AI Talent","","Transcription","Active","2026-07-27",26,"",null,"Scenario 2: Data & AI both milestones ($40), partially paid"),
+    R("REF-0013","2026-07-27","mar.quint@hotmail.com","M. Quint","Grace Castillo","grace.castillo@example.com","Specialist Talent","Tier 3","Quant","Active","2026-07-31",null,"2026-08-07",2800,"Scenario 3: Specialist earned under the cap, payment due"),
+    R("REF-0014","2026-07-27","memagallanes@gmail.com","Eden Magallanes","Samuel Rivera","samuel.rivera@example.com","Data & AI Talent","","Rating & ranking","Active","2026-07-30",27,"",null,"Scenario 2: Data & AI both milestones ($40), partially paid"),
+    R("REF-0015","2026-07-30","jbuala@agentsonly.com","J. Buala","Carlo Torres","carlo.torres@example.com","Specialist Talent","Tier 1","Domain SME","Active","2026-08-03",null,"2026-08-10",1400,"Scenario 3: Specialist earned under the cap, payment due"),
+    R("REF-0016","2026-08-02","aalvarez@agentsonly.com","A. Alvarez","Joanna Villanueva","joanna.villanueva@example.com","Specialist Talent","Tier 2","Clinical/Pharma","Active","2026-08-06",null,"2026-08-13",2100,"Scenario 3: Specialist earned under the cap, payment due"),
+    R("REF-0017","2026-08-05","ealvarez@agentsonly.com","E. Alvarez","Enzo Morales","enzo.morales@example.com","Specialist Talent","Tier 3","ML Research","Active","2026-08-09",null,"2026-08-16",2800,"Scenario 3: Specialist earned under the cap, payment due"),
+    R("REF-0018","2026-08-08","memagallanes@gmail.com","Eden Magallanes","Tessa Robles","tessa.robles@example.com","Specialist Talent","Tier 1","STEM","Active","2026-08-12",null,"2026-08-19",1400,"Scenario 3: Specialist earned under the cap, payment due"),
+    R("REF-0019","2026-08-09","bsamarista@agentsonly.com","B. Samarista","Noel Gomez","noel.gomez@example.com","Data & AI Talent","","Rating & ranking","Active","2026-08-12",12,"",null,"Scenario 4: Data & AI first milestone ($20), payment due"),
+    R("REF-0020","2026-08-12","mar.quint@hotmail.com","M. Quint","Daniel Pascual","daniel.pascual@example.com","Data & AI Talent","","Annotation","Active","2026-08-15",13,"",null,"Scenario 4: Data & AI first milestone ($20), payment due"),
+    R("REF-0021","2026-08-15","jbuala@agentsonly.com","J. Buala","Bianca Ocampo","bianca.ocampo@example.com","Data & AI Talent","","Data labeling","Active","2026-08-18",14,"",null,"Scenario 4: Data & AI first milestone ($20), payment due"),
+    R("REF-0022","2026-08-18","aalvarez@agentsonly.com","A. Alvarez","Rafael Mendoza","rafael.mendoza@example.com","Data & AI Talent","","Transcription","Active","2026-08-21",15,"",null,"Scenario 4: Data & AI first milestone ($20), payment due"),
+    R("REF-0023","2026-08-21","ealvarez@agentsonly.com","E. Alvarez","Faye Garcia","faye.garcia@example.com","Data & AI Talent","","Search evaluation","Active","2026-08-24",16,"",null,"Scenario 4: Data & AI first milestone ($20), payment due"),
+    R("REF-0024","2026-08-24","memagallanes@gmail.com","Eden Magallanes","Ulysses Cruz","ulysses.cruz@example.com","Data & AI Talent","","Rating & ranking","Active","2026-08-27",17,"",null,"Scenario 4: Data & AI first milestone ($20), payment due"),
+    R("REF-0025","2026-08-25","bsamarista@agentsonly.com","B. Samarista","Samuel Rivera","samuel.rivera@example.com","Data & AI Talent","","Annotation","Submitted","",null,"",null,"Scenario 5: Duplicate: already referred by Eden Magallanes"),
+    R("REF-0026","2026-08-28","mar.quint@hotmail.com","M. Quint","Ramon Reyes","ramon.reyes@example.com","Data & AI Talent","","Data labeling","Submitted","",null,"",null,"Scenario 5: Duplicate: already referred by B. Samarista"),
+    R("REF-0027","2026-08-31","jbuala@agentsonly.com","J. Buala","Paolo Bautista","paolo.bautista@example.com","Data & AI Talent","","Transcription","Submitted","",null,"",null,"Scenario 5: Duplicate: already referred by M. Quint"),
+    R("REF-0028","2026-09-02","bsamarista@agentsonly.com","B. Samarista","Patricia Castro","patricia.castro@example.com","Specialist Talent","Tier 3","Quant","Active","2026-09-04",null,"2026-09-10",1400,"Scenario 6: Specialist inside the first 30 days, still accruing"),
+    R("REF-0029","2026-09-03","mar.quint@hotmail.com","M. Quint","Sofia Villareal","sofia.villareal@example.com","Specialist Talent","Tier 1","Software","Active","2026-09-05",null,"2026-09-11",1550,"Scenario 6: Specialist inside the first 30 days, still accruing"),
+    R("REF-0030","2026-09-03","aalvarez@agentsonly.com","A. Alvarez","Rhea Ramirez","rhea.ramirez@example.com","Data & AI Talent","","Annotation","Submitted","",null,"",null,"Scenario 5: Duplicate: already referred by J. Buala"),
+    R("REF-0031","2026-09-05","jbuala@agentsonly.com","J. Buala","Jasper Lim","jasper.lim@example.com","Specialist Talent","Tier 2","ML","Active","2026-09-07",null,"2026-09-13",1700,"Scenario 6: Specialist inside the first 30 days, still accruing"),
+    R("REF-0032","2026-09-06","aalvarez@agentsonly.com","A. Alvarez","Denise Reyes","denise.reyes@example.com","Specialist Talent","Tier 3","ML Research","Active","2026-09-08",null,"2026-09-14",1850,"Scenario 6: Specialist inside the first 30 days, still accruing"),
+    R("REF-0033","2026-09-06","ealvarez@agentsonly.com","E. Alvarez","Felix Navarro","felix.navarro@example.com","Data & AI Talent","","Search evaluation","Submitted","",null,"",null,"Scenario 5: Duplicate: already referred by A. Alvarez"),
+    R("REF-0034","2026-09-08","bsamarista@agentsonly.com","B. Samarista","Jerome Santos","jerome.santos@example.com","Data & AI Talent","","Rating & ranking","Qualified","2026-09-12",3,"",null,"Scenario 7: Data & AI qualified, below 10 tasks"),
+    R("REF-0035","2026-09-08","ealvarez@agentsonly.com","E. Alvarez","Lorenzo Bautista","lorenzo.bautista@example.com","Specialist Talent","Tier 1","Domain SME","Active","2026-09-10",null,"2026-09-16",2000,"Scenario 6: Specialist inside the first 30 days, still accruing"),
+    R("REF-0036","2026-09-09","mar.quint@hotmail.com","M. Quint","Miguel Aquino","miguel.aquino@example.com","Data & AI Talent","","Data labeling","Qualified","2026-09-13",4,"",null,"Scenario 7: Data & AI qualified, below 10 tasks"),
+    R("REF-0037","2026-09-09","memagallanes@gmail.com","Eden Magallanes","Aileen Domingo","aileen.domingo@example.com","Data & AI Talent","","Transcription","Submitted","",null,"",null,"Scenario 5: Duplicate: already referred by E. Alvarez"),
+    R("REF-0038","2026-09-09","memagallanes@gmail.com","Eden Magallanes","Vina Ramirez","vina.ramirez@example.com","Specialist Talent","Tier 2","Coding (Python)","Active","2026-09-11",null,"2026-09-17",2150,"Scenario 6: Specialist inside the first 30 days, still accruing"),
+    R("REF-0039","2026-09-10","jbuala@agentsonly.com","J. Buala","Arvin Tan","arvin.tan@example.com","Data & AI Talent","","Rating & ranking","Qualified","2026-09-14",5,"",null,"Scenario 7: Data & AI qualified, below 10 tasks"),
+    R("REF-0040","2026-09-11","aalvarez@agentsonly.com","A. Alvarez","Gino Herrera","gino.herrera@example.com","Data & AI Talent","","Annotation","Qualified","2026-09-15",6,"",null,"Scenario 7: Data & AI qualified, below 10 tasks"),
+    R("REF-0041","2026-09-12","ealvarez@agentsonly.com","E. Alvarez","Mae Castillo","mae.castillo@example.com","Data & AI Talent","","Data labeling","Qualified","2026-09-16",7,"",null,"Scenario 7: Data & AI qualified, below 10 tasks"),
+    R("REF-0042","2026-09-13","memagallanes@gmail.com","Eden Magallanes","Wendell Torres","wendell.torres@example.com","Data & AI Talent","","Transcription","Qualified","2026-09-17",8,"",null,"Scenario 7: Data & AI qualified, below 10 tasks"),
+    R("REF-0043","2026-09-14","bsamarista@agentsonly.com","B. Samarista","Angela Ong","angela.ong@example.com","Specialist Talent","Tier 1","Domain SME","Qualified","2026-09-18",null,"",null,"Scenario 8: Specialist qualified, no billable work yet"),
+    R("REF-0044","2026-09-14","mar.quint@hotmail.com","M. Quint","Hannah Lopez","hannah.lopez@example.com","Specialist Talent","Tier 2","Clinical/Pharma","Qualified","2026-09-18",null,"",null,"Scenario 8: Specialist qualified, no billable work yet"),
+    R("REF-0045","2026-09-14","jbuala@agentsonly.com","J. Buala","Mika Flores","mika.flores@example.com","Specialist Talent","Tier 3","Security","Qualified","2026-09-18",null,"",null,"Scenario 8: Specialist qualified, no billable work yet"),
+    R("REF-0046","2026-09-14","aalvarez@agentsonly.com","A. Alvarez","Trisha Gomez","trisha.gomez@example.com","Specialist Talent","Tier 1","STEM","Qualified","2026-09-18",null,"",null,"Scenario 8: Specialist qualified, no billable work yet"),
+    R("REF-0047","2026-09-14","ealvarez@agentsonly.com","E. Alvarez","Nico Pascual","nico.pascual@example.com","Specialist Talent","Tier 2","ML","Qualified","2026-09-18",null,"",null,"Scenario 8: Specialist qualified, no billable work yet"),
+    R("REF-0048","2026-09-14","memagallanes@gmail.com","Eden Magallanes","Yvonne Ocampo","yvonne.ocampo@example.com","Specialist Talent","Tier 3","Quant","Qualified","2026-09-18",null,"",null,"Scenario 8: Specialist qualified, no billable work yet"),
+    R("REF-0049","2026-09-16","bsamarista@agentsonly.com","B. Samarista","Victor Domingo","victor.domingo@example.com","Specialist Talent","Tier 2","Adv. Math","Not Qualified","",null,"",null,"Scenario 9: Did not qualify (failed assessment)"),
+    R("REF-0050","2026-09-16","mar.quint@hotmail.com","M. Quint","Leo Rivera","leo.rivera@example.com","Specialist Talent","Tier 3","Security","Not Qualified","",null,"",null,"Scenario 9: Did not qualify (failed assessment)"),
+    R("REF-0051","2026-09-16","jbuala@agentsonly.com","J. Buala","Lara Salazar","lara.salazar@example.com","Specialist Talent","Tier 1","Domain SME","Not Qualified","",null,"",null,"Scenario 9: Did not qualify (failed assessment)"),
+    R("REF-0052","2026-09-16","aalvarez@agentsonly.com","A. Alvarez","Oscar Castro","oscar.castro@example.com","Specialist Talent","Tier 2","Clinical/Pharma","Not Qualified","",null,"",null,"Scenario 9: Did not qualify (failed assessment)"),
+    R("REF-0053","2026-09-16","ealvarez@agentsonly.com","E. Alvarez","Pia Villareal","pia.villareal@example.com","Specialist Talent","Tier 3","Quant","Not Qualified","",null,"",null,"Scenario 9: Did not qualify (failed assessment)"),
+    R("REF-0054","2026-09-16","memagallanes@gmail.com","Eden Magallanes","Zach Lim","zach.lim@example.com","Specialist Talent","Tier 1","STEM","Not Qualified","",null,"",null,"Scenario 9: Did not qualify (failed assessment)"),
+    R("REF-0055","2026-09-19","bsamarista@agentsonly.com","B. Samarista","B. Samarista","bsamarista@agentsonly.com","Data & AI Talent","","Annotation","Rejected","",null,"",null,"Scenario 10: Self-referral"),
+    R("REF-0056","2026-09-19","mar.quint@hotmail.com","M. Quint","M. Quint","mar.quint@hotmail.com","Data & AI Talent","","Data labeling","Rejected","",null,"",null,"Scenario 10: Self-referral"),
+    R("REF-0057","2026-09-19","jbuala@agentsonly.com","J. Buala","J. Buala","jbuala@agentsonly.com","Data & AI Talent","","Transcription","Rejected","",null,"",null,"Scenario 10: Self-referral"),
+    R("REF-0058","2026-09-19","aalvarez@agentsonly.com","A. Alvarez","A. Alvarez","aalvarez@agentsonly.com","Data & AI Talent","","Search evaluation","Rejected","",null,"",null,"Scenario 10: Self-referral"),
+    R("REF-0059","2026-09-19","ealvarez@agentsonly.com","E. Alvarez","E. Alvarez","ealvarez@agentsonly.com","Data & AI Talent","","Rating & ranking","Rejected","",null,"",null,"Scenario 10: Self-referral"),
+    R("REF-0060","2026-09-19","memagallanes@gmail.com","Eden Magallanes","Eden Magallanes","memagallanes@gmail.com","Data & AI Talent","","Annotation","Rejected","",null,"",null,"Scenario 10: Self-referral"),
+    R("REF-0061","2026-09-23","jbuala@agentsonly.com","J. Buala","Tomas Fernandez","tomas.fernandez@example.com","Data & AI Talent","","Data labeling","Submitted","",null,"",null,"Scenario 11: New referral awaiting admin review"),
+    R("REF-0062","2026-09-23","memagallanes@gmail.com","Eden Magallanes","Alma Tan","alma.tan@example.com","Data & AI Talent","","Transcription","Submitted","",null,"",null,"Scenario 11: New referral awaiting admin review"),
+    R("REF-0063","2026-09-24","mar.quint@hotmail.com","M. Quint","Ivy Robles","ivy.robles@example.com","Data & AI Talent","","Search evaluation","Submitted","",null,"",null,"Scenario 11: New referral awaiting admin review"),
+    R("REF-0064","2026-09-24","ealvarez@agentsonly.com","E. Alvarez","Quentin Aquino","quentin.aquino@example.com","Data & AI Talent","","Rating & ranking","Submitted","",null,"",null,"Scenario 11: New referral awaiting admin review"),
+    R("REF-0065","2026-09-25","bsamarista@agentsonly.com","B. Samarista","Kristine Morales","kristine.morales@example.com","Data & AI Talent","","Annotation","Submitted","",null,"",null,"Scenario 11: New referral awaiting admin review"),
+    R("REF-0066","2026-09-25","aalvarez@agentsonly.com","A. Alvarez","Bea Santos","bea.santos@example.com","Data & AI Talent","","Data labeling","Submitted","",null,"",null,"Scenario 11: New referral awaiting admin review"),
   ];
   let payouts = [
-    {"id": "PAY-0001", "referralId": "REF-0001", "date": "2026-08-15", "amount": 40, "method": "GCash", "reference": "GC-10421", "recordedBy": "admin@agentsonly.com"},
-    {"id": "PAY-0002", "referralId": "REF-0002", "date": "2026-09-05", "amount": 130, "method": "Bank transfer", "reference": "BT-7730", "recordedBy": "admin@agentsonly.com"},
-    {"id": "PAY-0003", "referralId": "REF-0005", "date": "2026-08-30", "amount": 50, "method": "GCash", "reference": "GC-11807", "recordedBy": "admin@agentsonly.com"},
-    {"id": "PAY-0004", "referralId": "REF-0010", "date": "2026-08-28", "amount": 20, "method": "GCash", "reference": "GC-11690", "recordedBy": "admin@agentsonly.com"},
-    {"id": "PAY-0005", "referralId": "REF-0014", "date": "2026-09-10", "amount": 20, "method": "PayPal", "reference": "PP-3321", "recordedBy": "admin@agentsonly.com"},
-    {"id": "PAY-0006", "referralId": "REF-0017", "date": "2026-08-20", "amount": 40, "method": "GCash", "reference": "GC-10955", "recordedBy": "admin@agentsonly.com"},
+    {"id": "PAY-0001", "referralId": "REF-0004", "date": "2026-08-09", "amount": 20, "method": "Bank transfer", "reference": "TX-10437", "recordedBy": "admin@agentsonly.com"},
+    {"id": "PAY-0002", "referralId": "REF-0006", "date": "2026-08-12", "amount": 20, "method": "PayPal", "reference": "TX-10474", "recordedBy": "admin@agentsonly.com"},
+    {"id": "PAY-0003", "referralId": "REF-0008", "date": "2026-08-15", "amount": 20, "method": "GCash", "reference": "TX-10511", "recordedBy": "admin@agentsonly.com"},
+    {"id": "PAY-0004", "referralId": "REF-0001", "date": "2026-08-18", "amount": 100, "method": "Bank transfer", "reference": "TX-10548", "recordedBy": "admin@agentsonly.com"},
+    {"id": "PAY-0005", "referralId": "REF-0010", "date": "2026-08-18", "amount": 20, "method": "PayPal", "reference": "TX-10585", "recordedBy": "admin@agentsonly.com"},
+    {"id": "PAY-0006", "referralId": "REF-0002", "date": "2026-08-21", "amount": 150, "method": "GCash", "reference": "TX-10622", "recordedBy": "admin@agentsonly.com"},
+    {"id": "PAY-0007", "referralId": "REF-0012", "date": "2026-08-21", "amount": 20, "method": "Bank transfer", "reference": "TX-10659", "recordedBy": "admin@agentsonly.com"},
+    {"id": "PAY-0008", "referralId": "REF-0003", "date": "2026-08-24", "amount": 200, "method": "PayPal", "reference": "TX-10696", "recordedBy": "admin@agentsonly.com"},
+    {"id": "PAY-0009", "referralId": "REF-0014", "date": "2026-08-24", "amount": 20, "method": "GCash", "reference": "TX-10733", "recordedBy": "admin@agentsonly.com"},
+    {"id": "PAY-0010", "referralId": "REF-0005", "date": "2026-08-27", "amount": 100, "method": "Bank transfer", "reference": "TX-10770", "recordedBy": "admin@agentsonly.com"},
+    {"id": "PAY-0011", "referralId": "REF-0007", "date": "2026-08-30", "amount": 150, "method": "PayPal", "reference": "TX-10807", "recordedBy": "admin@agentsonly.com"},
+    {"id": "PAY-0012", "referralId": "REF-0009", "date": "2026-09-02", "amount": 200, "method": "GCash", "reference": "TX-10844", "recordedBy": "admin@agentsonly.com"},
   ];
   const sessions = {}; let pending = null;
   const norm = e => String(e||"").trim().toLowerCase();
@@ -398,7 +451,7 @@ const Demo = (function(){
       const daysActive = r.billableStart ? Math.min(settings.spDays, Math.max(0, Math.round((today - new Date(r.billableStart).getTime())/day))) : null;
       const accrued = Math.min((r.earnings30||0)*settings.spPct, cap(r.tier));
       const progress = r.program==="Data & AI Talent" ? Math.min(r.qaTasks||0, settings.m2Tasks)+" of "+settings.m2Tasks+" QA-approved tasks"
-        : (!r.billableStart ? "Awaiting billable work" : "Day "+daysActive+" of "+settings.spDays+" · accrued $"+accrued.toFixed(2));
+        : (!r.billableStart ? "Awaiting billable work" : "Day "+daysActive+" of "+settings.spDays+" \u00b7 accrued $"+accrued.toFixed(2));
       let reward = 0;
       if (validation==="OK" && r.qualifiedDate && !["Submitted","Not Qualified","Rejected"].includes(r.status)){
         if (r.program==="Data & AI Talent") reward = (r.qaTasks||0)>=settings.m2Tasks ? settings.m1Reward+settings.m2Reward : (r.qaTasks||0)>=settings.m1Tasks ? settings.m1Reward : 0;
@@ -520,7 +573,7 @@ const $ = s => document.querySelector(s);
 const esc = s => String(s == null ? "" : s).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const money = n => "$" + (Number(n)||0).toLocaleString("en-US",{minimumFractionDigits:(Number(n)%1?2:0),maximumFractionDigits:2});
 const money2 = n => "$" + (Number(n)||0).toLocaleString("en-US",{minimumFractionDigits:2,maximumFractionDigits:2});
-const fdate = s => { if (!s) return "—"; const d = new Date(s+"T00:00:00"); return isNaN(d) ? esc(s) : d.toLocaleDateString("en-US",{month:"short",day:"numeric",year:"numeric"}); };
+const fdate = s => { if (!s) return "\u2014"; const d = new Date(s+"T00:00:00"); return isNaN(d) ? esc(s) : d.toLocaleDateString("en-US",{month:"short",day:"numeric",year:"numeric"}); };
 const todayIso = () => { const d = new Date(); return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0"); };
 const first = n => String(n||"").split(" ")[0];
 const isDA = r => r.program === "Data & AI Talent";
@@ -530,7 +583,7 @@ const sum = (a, k) => a.reduce((s, x) => s + (Number(x[k])||0), 0);
 
 function progPill(r){
   return isDA(r) ? '<span class="pill nodot p-blue">Data &amp; AI</span>'
-    : '<span class="pill nodot p-green">Specialist' + (r.tier ? " · " + esc(r.tier) : "") + "</span>";
+    : '<span class="pill nodot p-green">Specialist' + (r.tier ? " \u00b7 " + esc(r.tier) : "") + "</span>";
 }
 function statusPill(s){
   const m = {"Submitted":"p-amber","Qualified":"p-teal","Active":"p-teal","Not Qualified":"","Rejected":"p-red"};
@@ -613,7 +666,7 @@ function googleBlock(){
   const inner = DEMO_GOOGLE
     ? `<button type="button" class="btn lg gdemo" data-act="demo-google">Sign in with Google</button>`
     : gisFailed ? `<p class="faint" style="font-size:13px">Google sign-in isn't available right now. Use an email code below.</p>`
-    : `<span class="faint" style="font-size:13px">Loading Google sign-in…</span>`;
+    : `<span class="faint" style="font-size:13px">Loading Google sign-in\u2026</span>`;
   return `<div class="gwrap">
       <div id="gbtn" class="gbtn">${inner}</div>
       <p class="faint" style="font-size:12.5px">For Agents Only and Gmail accounts. ${DEMO_GOOGLE ? "In the demo this signs you in as B. Samarista." : ""}</p>
@@ -624,7 +677,7 @@ function viewLogin(){
   const L = S.login;
   const demo = !LIVE ? `
     <div class="quick">
-      <p class="eyebrow">Demo sign-in · code 123456</p>
+      <p class="eyebrow">Demo sign-in \u00b7 code 123456</p>
       <div class="row">
         <button class="btn sm" data-act="demo" data-email="admin@agentsonly.com">Admin</button>
         
@@ -633,8 +686,9 @@ function viewLogin(){
         <button class="btn sm" data-act="demo" data-email="jbuala@agentsonly.com">J. Buala</button>
         <button class="btn sm" data-act="demo" data-email="aalvarez@agentsonly.com">A. Alvarez</button>
         <button class="btn sm" data-act="demo" data-email="ealvarez@agentsonly.com">E. Alvarez</button>
+        <button class="btn sm" data-act="demo" data-email="memagallanes@gmail.com">Eden Magallanes</button>
       </div>
-      <p class="faint" style="font-size:12.5px">Each agent sees only their own referrals. Nothing you do here is saved.</p>
+      <p class="faint" style="font-size:12.5px">Each agent has one referral for every scenario and sees only their own. Nothing you do here is saved.</p>
     </div>` : "";
   const form = L.step === "email" ? `
     <form id="f-email" class="login-card card" novalidate>
@@ -650,7 +704,7 @@ function viewLogin(){
       <div><h2>Check your email</h2><p class="muted" style="margin-top:4px">Enter the 6-digit code sent to <b>${esc(L.email)}</b>. It expires in 10 minutes.</p></div>
       <div class="err-slot" role="alert">${S.error ? `<div class="err">${esc(S.error)}</div>` : ""}</div>
       <div class="field"><label for="code">Sign-in code</label>
-        <input id="code" class="input code-input" inputmode="numeric" autocomplete="one-time-code" maxlength="6" placeholder="••••••" required></div>
+        <input id="code" class="input code-input" inputmode="numeric" autocomplete="one-time-code" maxlength="6" placeholder="\u2022\u2022\u2022\u2022\u2022\u2022" required></div>
       <button class="btn primary lg" type="submit" ${S.busy ? "disabled" : ""}>${S.busy ? '<span class="spinner"></span>' : ""}Sign in</button>
       <div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:space-between">
         <button type="button" class="btn ghost sm" data-act="login-back">Use a different email</button>
@@ -719,7 +773,7 @@ function track(r){
   const steps = [
     {l:"Qualifies", a:q?"Done":"Pending", d:q},
     {l:"Billable work", a:started?"Since "+fdate(r.billableStart):"Not started", d:q && started},
-    {l:"Active "+st.spDays+" days", a:started?("Day "+days+" of "+st.spDays):"—", d:q && started && days>=st.spDays},
+    {l:"Active "+st.spDays+" days", a:started?("Day "+days+" of "+st.spDays):"\u2014", d:q && started && days>=st.spDays},
     {l:"Earn "+Math.round(st.spPct*100)+"%", a:r.reward>0?money2(r.reward):"Up to "+money(cap), d:r.reward>0},
   ];
   const pct = started ? Math.min(100, days/st.spDays*100) : 0;
@@ -781,7 +835,7 @@ function viewAgent(){
     </section>
     ${pays.length ? `<section class="section"><h2>Payment history</h2>
       <div class="card tbl-wrap"><table><thead><tr><th>Date</th><th>For</th><th>Method</th><th class="r">Amount</th></tr></thead><tbody>
-      ${pays.map(p => `<tr><td>${fdate(p.date)}</td><td>${esc(refName(p.referralId))} <span class="cell-2 mono">${esc(p.referralId)}</span></td><td>${esc(p.method||"—")}</td><td class="r num"><b>${money2(p.amount)}</b></td></tr>`).join("")}
+      ${pays.map(p => `<tr><td>${fdate(p.date)}</td><td>${esc(refName(p.referralId))} <span class="cell-2 mono">${esc(p.referralId)}</span></td><td>${esc(p.method||"\u2014")}</td><td class="r num"><b>${money2(p.amount)}</b></td></tr>`).join("")}
       </tbody></table></div></section>` : ""}
     ${viewRules()}
   `);
@@ -803,7 +857,7 @@ function viewRules(){
       </div>
       <div class="card panel">
         <div class="section-h"><h3>Specialist Talent</h3><span class="pill nodot p-green">${Math.round(st.spPct*100)}% of first ${st.spDays}-day earnings</span></div>
-        <p class="muted" style="font-size:14px">Qualifies → billable work → active ${st.spDays} days → earn ${Math.round(st.spPct*100)}%, capped by tier.</p>
+        <p class="muted" style="font-size:14px">Qualifies \u2192 billable work \u2192 active ${st.spDays} days \u2192 earn ${Math.round(st.spPct*100)}%, capped by tier.</p>
         <div class="tiers">${st.tiers.map(t => `<div class="tier"><span class="eyebrow">${esc(t.tier)}</span><span class="cap">${money(t.cap)}</span><span class="roles">${esc(t.roles)}</span></div>`).join("")}</div>
       </div>
     </div>
@@ -850,7 +904,7 @@ function adminOverview(){
     by[k] = by[k] || {name: a ? a.name : (r.referrerName||r.referrerEmail), n:0, e:0, due:0}; by[k].n++; by[k].e += r.reward||0; by[k].due += Math.max(0,r.balance||0); });
   const top = Object.values(by).sort((a,b) => b.e-a.e || b.n-a.n).slice(0,6);
   const attn = (list, label, note) => `<div class="card panel"><div class="section-h"><h3>${label}</h3><span class="pill nodot">${list.length}</span></div>
-    ${list.length ? `<div class="attn">${list.slice(0,5).map(r => `<button data-act="open-ref" data-id="${esc(r.id)}"><span><b>${esc(r.referredName)}</b><span class="cell-2">${esc(r.referrerName)} · ${esc(note(r))}</span></span><span class="mono faint">${esc(r.id)}</span></button>`).join("")}</div>` : `<p class="muted" style="font-size:14px">Nothing here.</p>`}</div>`;
+    ${list.length ? `<div class="attn">${list.slice(0,5).map(r => `<button data-act="open-ref" data-id="${esc(r.id)}"><span><b>${esc(r.referredName)}</b><span class="cell-2">${esc(r.referrerName)} \u00b7 ${esc(note(r))}</span></span><span class="mono faint">${esc(r.id)}</span></button>`).join("")}</div>` : `<p class="muted" style="font-size:14px">Nothing here.</p>`}</div>`;
   return `
     <div class="stats">
       <div class="card stat"><span class="l">Referrals</span><span class="v">${R.length}</span></div>
@@ -865,7 +919,7 @@ function adminOverview(){
     </div>
     <div class="cols2">
       <div class="card panel"><h3>By program</h3><div class="split">
-        ${progs.map(p => `<div class="split-row"><div class="top"><span>${p.p==="Data & AI Talent" ? progPill({program:p.p}) : '<span class="pill nodot p-green">Specialist</span>'}</span><span class="num muted">${p.n} referrals · ${p.q} qualified · <b style="color:var(--ink)">${money(p.e)}</b> earned</span></div>
+        ${progs.map(p => `<div class="split-row"><div class="top"><span>${p.p==="Data & AI Talent" ? progPill({program:p.p}) : '<span class="pill nodot p-green">Specialist</span>'}</span><span class="num muted">${p.n} referrals \u00b7 ${p.q} qualified \u00b7 <b style="color:var(--ink)">${money(p.e)}</b> earned</span></div>
           <div class="bar"><i style="width:${p.n/maxN*100}%;background:${p.p==="Data & AI Talent"?"var(--blue)":"var(--green)"}"></i></div></div>`).join("")}
       </div></div>
       ${attn(flagged, "Flagged: duplicates and self-referrals", r => r.validation)}
@@ -893,7 +947,7 @@ function adminReferrals(){
     <div class="card tbl-wrap"><table>
       <thead><tr><th>Referred</th><th>Referrer</th><th>Program</th><th>Status</th><th>Progress</th><th class="r">Earned</th><th class="r">Balance</th><th>Payment</th></tr></thead>
       <tbody>${list.map(r => `<tr class="click" data-act="open-ref" data-id="${esc(r.id)}" tabindex="0">
-        <td><b>${esc(r.referredName)}</b><span class="cell-2">${esc(r.referredEmail)}</span><span class="cell-2 mono">${esc(r.id)} · ${fdate(r.date)}</span></td>
+        <td><b>${esc(r.referredName)}</b><span class="cell-2">${esc(r.referredEmail)}</span><span class="cell-2 mono">${esc(r.id)} \u00b7 ${fdate(r.date)}</span></td>
         <td>${esc(r.referrerName)}<span class="cell-2">${esc(r.referrerEmail)}</span></td>
         <td>${progPill(r)}</td>
         <td>${statusPill(r.status)}${r.validation && r.validation!=="OK" ? `<div style="margin-top:4px"><span class="pill p-red">${esc(r.validation)}</span></div>` : ""}</td>
@@ -914,7 +968,7 @@ function adminAgents(){
       <thead><tr><th>Agent</th><th>Agents Only email</th><th>Personal email</th><th>Status</th><th class="r">Referrals</th><th class="r">Earned</th><th></th></tr></thead>
       <tbody>${d.agents.map(a => { const s = stats(a); return `<tr>
         <td><b>${esc(a.name)}</b><span class="cell-2 mono">${esc(a.id)}</span></td>
-        <td>${esc(a.aoEmail||"—")}</td><td>${esc(a.personalEmail||"—")}</td>
+        <td>${esc(a.aoEmail||"\u2014")}</td><td>${esc(a.personalEmail||"\u2014")}</td>
         <td><span class="pill ${a.status==="Inactive"?"":"p-teal"}">${esc(a.status)}</span></td>
         <td class="r num">${s.n}</td><td class="r num">${money2(s.e)}</td>
         <td class="r"><button class="btn sm" data-act="open-agent" data-id="${esc(a.id)}">Edit</button></td></tr>`; }).join("") || `<tr><td colspan="7" class="empty">No agents yet. Add one so they can sign in.</td></tr>`}</tbody>
@@ -930,9 +984,9 @@ function adminPayouts(){
       <thead><tr><th>Date</th><th>Referral</th><th>Referrer</th><th>Method</th><th>Reference</th><th class="r">Amount</th><th></th></tr></thead>
       <tbody>${list.map(p => { const r = ref(p.referralId); return `<tr>
         <td>${fdate(p.date)}<span class="cell-2 mono">${esc(p.id)}</span></td>
-        <td>${esc(r.referredName||"—")}<span class="cell-2 mono">${esc(p.referralId)}</span></td>
-        <td>${esc(r.referrerName||p.referrerEmail||"—")}</td><td>${esc(p.method||"—")}</td>
-        <td>${esc(p.reference||"—")}<span class="cell-2">by ${esc(p.recordedBy||"—")}</span></td>
+        <td>${esc(r.referredName||"\u2014")}<span class="cell-2 mono">${esc(p.referralId)}</span></td>
+        <td>${esc(r.referrerName||p.referrerEmail||"\u2014")}</td><td>${esc(p.method||"\u2014")}</td>
+        <td>${esc(p.reference||"\u2014")}<span class="cell-2">by ${esc(p.recordedBy||"\u2014")}</span></td>
         <td class="r num"><b>${money2(p.amount)}</b></td>
         <td class="r"><button class="btn sm danger ${S.armed==="pay:"+p.id?"armed":""}" data-act="del-pay" data-id="${esc(p.id)}">${S.armed==="pay:"+p.id?"Confirm delete":"Delete"}</button></td></tr>`; }).join("") || `<tr><td colspan="7" class="empty">No payouts recorded yet.</td></tr>`}</tbody>
     </table></div>`;
@@ -964,7 +1018,7 @@ function viewDrawer(){
   const pays = d.payouts.filter(p => p.referralId===r.id);
   const opt = (v,cur) => `<option ${v===cur?"selected":""}>${esc(v)}</option>`;
   return `<div class="scrim" data-act="close-overlay"><aside class="drawer" role="dialog" aria-modal="true" aria-label="Referral ${esc(r.id)}" data-stop>
-    <div class="drawer-h"><div style="display:grid;gap:4px;min-width:0"><span class="mono faint">${esc(r.id)} · referred ${fdate(r.date)}</span><h2>${esc(r.referredName)}</h2>
+    <div class="drawer-h"><div style="display:grid;gap:4px;min-width:0"><span class="mono faint">${esc(r.id)} \u00b7 referred ${fdate(r.date)}</span><h2>${esc(r.referredName)}</h2>
       <span class="muted" style="font-size:13px">by ${esc(r.referrerName)} (${esc(r.referrerEmail)})</span></div>
       <button class="btn sm" data-act="close-overlay" aria-label="Close">Close</button></div>
     <div class="drawer-b">
@@ -979,7 +1033,7 @@ function viewDrawer(){
           <div class="field"><label for="e-name">Referred name</label><input id="e-name" class="input" value="${esc(r.referredName)}"></div>
           <div class="field"><label for="e-email">Referred email</label><input id="e-email" class="input" type="email" value="${esc(r.referredEmail)}"></div>
           <div class="field"><label for="e-program">Program</label><select id="e-program" class="input">${opt("Data & AI Talent",r.program)}${opt("Specialist Talent",r.program)}</select></div>
-          <div class="field"><label for="e-tier">Specialist tier</label><select id="e-tier" class="input"><option value="">—</option>${d.settings.tiers.map(t => `<option value="${esc(t.tier)}" ${t.tier===r.tier?"selected":""}>${esc(t.tier)} · ${money(t.cap)} cap</option>`).join("")}</select></div>
+          <div class="field"><label for="e-tier">Specialist tier</label><select id="e-tier" class="input"><option value="">\u2014</option>${d.settings.tiers.map(t => `<option value="${esc(t.tier)}" ${t.tier===r.tier?"selected":""}>${esc(t.tier)} \u00b7 ${money(t.cap)} cap</option>`).join("")}</select></div>
           <div class="field"><label for="e-role">Role / skill</label><input id="e-role" class="input" value="${esc(r.role)}"></div>
           <div class="field"><label for="e-status">Status</label><select id="e-status" class="input">${["Submitted","Qualified","Active","Not Qualified","Rejected"].map(s => opt(s,r.status)).join("")}</select></div>
           <div class="field"><label for="e-qdate">Qualified date</label><input id="e-qdate" class="input" type="date" value="${esc(r.qualifiedDate)}"><span class="hint">Set automatically when you mark it Qualified.</span></div>
@@ -1019,7 +1073,7 @@ function viewModal(){
         <div class="err-slot" role="alert">${S.error ? `<div class="err">${esc(S.error)}</div>` : ""}</div>
         ${me.isAdmin ? `<div class="field"><label for="r-referrer">Referrer</label><select id="r-referrer" class="input">
             <option value="">Choose the agent who made the referral</option>
-            ${activeAgents.map(a => `<option value="${esc(a.aoEmail||a.personalEmail)}" ${v.referrerEmail===(a.aoEmail||a.personalEmail)?"selected":""}>${esc(a.name)} · ${esc(a.aoEmail||a.personalEmail)}</option>`).join("")}</select></div>` : ""}
+            ${activeAgents.map(a => `<option value="${esc(a.aoEmail||a.personalEmail)}" ${v.referrerEmail===(a.aoEmail||a.personalEmail)?"selected":""}>${esc(a.name)} \u00b7 ${esc(a.aoEmail||a.personalEmail)}</option>`).join("")}</select></div>` : ""}
         <div class="grid2">
           <div class="field"><label for="r-name">Their full name</label><input id="r-name" class="input" autocomplete="off" value="${esc(v.referredName||"")}"></div>
           <div class="field"><label for="r-email">Their email</label><input id="r-email" class="input" type="email" autocomplete="off" value="${esc(v.referredEmail||"")}"></div>
@@ -1030,7 +1084,7 @@ function viewModal(){
             <label><input type="radio" name="r-prog" value="Specialist Talent" ${v.program==="Specialist Talent"?"checked":""}><span class="ct">Specialist Talent</span><span class="cd">${Math.round(st.spPct*100)}% of first ${st.spDays}-day earnings, up to ${money(Math.max(...st.tiers.map(t=>t.cap)))}</span></label>
           </div></fieldset>
         <div class="field" id="tier-field" ${v.program==="Specialist Talent"?"":"hidden"}><label for="r-tier">Specialist tier (based on their role)</label>
-          <select id="r-tier" class="input"><option value="">Choose a tier</option>${st.tiers.map(t => `<option value="${esc(t.tier)}" ${v.tier===t.tier?"selected":""}>${esc(t.tier)} · up to ${money(t.cap)} · ${esc(t.roles)}</option>`).join("")}</select></div>
+          <select id="r-tier" class="input"><option value="">Choose a tier</option>${st.tiers.map(t => `<option value="${esc(t.tier)}" ${v.tier===t.tier?"selected":""}>${esc(t.tier)} \u00b7 up to ${money(t.cap)} \u00b7 ${esc(t.roles)}</option>`).join("")}</select></div>
         <div class="field"><label for="r-role">Role or skill</label><input id="r-role" class="input" placeholder="e.g. Annotation, Clinical/Pharma, Security" value="${esc(v.role||"")}"></div>
         ${me.isAdmin ? `<div class="field"><label for="r-notes">Internal notes</label><textarea id="r-notes" class="input">${esc(v.notes||"")}</textarea></div>` : ""}
         <p class="faint" style="font-size:12.5px">Refer someone you trust to deliver quality work. Rewards unlock only after they qualify and complete QA-approved or billable work.</p>
