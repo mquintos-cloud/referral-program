@@ -157,6 +157,18 @@ textarea.input{min-height:74px;resize:vertical}
 .rcard-top{display:flex;gap:12px;justify-content:space-between;flex-wrap:wrap;align-items:flex-start}
 .rcard-name{font-weight:700;font-size:16px}
 .rcard-meta{display:flex;gap:8px;flex-wrap:wrap;align-items:center;font-size:13px;color:var(--ink-2)}
+.projs{display:inline-flex;gap:6px;flex-wrap:wrap;align-items:center}
+.proj{display:inline-flex;align-items:center;gap:5px;font-size:12px;font-weight:600;padding:2px 8px;border-radius:6px;border:1px solid var(--line-2);background:var(--surface-2);color:var(--ink-2);white-space:nowrap}
+.proj::before{content:"";width:6px;height:6px;border-radius:2px;background:var(--teal)}
+.cell-projs{margin-top:5px}
+.projpick{display:flex;flex-wrap:wrap;gap:6px;max-height:168px;overflow:auto;padding:8px;border:1px solid var(--line-2);border-radius:10px;background:var(--surface)}
+.pp{position:relative;display:inline-flex}
+.pp input{position:absolute;opacity:0;width:1px;height:1px}
+.pp span{display:inline-flex;align-items:center;gap:6px;font-size:12.5px;font-weight:600;padding:5px 10px;border-radius:999px;border:1px solid var(--line-2);color:var(--ink-2);background:var(--surface-2);cursor:pointer;user-select:none}
+.pp span::before{content:"+";font-weight:800;color:var(--ink-3)}
+.pp input:checked+span{background:var(--teal-soft);border-color:var(--teal);color:var(--teal-ink)}
+.pp input:checked+span::before{content:"\2713";color:var(--teal-ink)}
+.pp input:focus-visible+span{outline:2px solid var(--teal);outline-offset:2px}
 .pills{display:flex;gap:6px;flex-wrap:wrap}
 .rcard-foot{display:flex;gap:20px;flex-wrap:wrap;font-size:13px;color:var(--ink-2);border-top:1px solid var(--line);padding-top:12px}
 .rcard-foot b{color:var(--ink);font-variant-numeric:tabular-nums;font-size:15px}
@@ -261,6 +273,8 @@ const CONFIG = {
   API_URL: "https://script.google.com/macros/s/AKfycbxyApgsRSIviffhLp3pjDDbcDa_rKfvG6CvEHULHr_hISwMZglJfByQpfwk_iulbu9z/exec",
   // Your OAuth Web client ID from Google Cloud (ends in .apps.googleusercontent.com)
   GOOGLE_CLIENT_ID: "659269124901-m7g3569bjfi7jpkggajt699a59cdsqlb.apps.googleusercontent.com",
+  // Link to the AO Platform referral section (where agents submit referrals). Leave "" to show instructions only.
+  AO_REFERRAL_URL: "",
 };
 
 /* =========================================================================
@@ -273,16 +287,24 @@ const GOOGLE_ON = !!(API && String(CONFIG.GOOGLE_CLIENT_ID || "").trim());   // 
 const DEMO_GOOGLE = !LIVE;
 let gisReady = false, gisFailed = false;
 
-async function apiCall(fn, args){
+const RETRY_SAFE = { verifyCode: 1, googleSignIn: 1, getPortalData: 1 };   // safe to send twice
+async function apiOnce(fn, args){
   let r;
   try {
     r = await fetch(API, { method: "POST", headers: { "Content-Type": "text/plain;charset=utf-8" }, body: JSON.stringify({ fn, args }) });
-  } catch(e){ throw new Error("Can't reach the portal server. Check your connection and try again."); }
-  if (!r.ok) throw new Error("The portal server didn't respond (error " + r.status + "). Try again in a moment.");
+  } catch(e){ const err = new Error("Can't reach the portal server. Check your connection and try again."); err.retry = true; throw err; }
+  if (!r.ok){ const err = new Error("The portal server didn't respond (error " + r.status + "). Try again in a moment."); err.retry = r.status === 404 || r.status >= 500; throw err; }
   let j;
-  try { j = await r.json(); } catch(e){ throw new Error("The portal server sent an unexpected reply. Check that API_URL is the web app link ending in /exec."); }
+  try { j = await r.json(); } catch(e){ const err = new Error("The portal server sent an unexpected reply. Try again in a moment."); err.retry = true; throw err; }
   if (!j.ok) throw new Error(j.error || "Something went wrong. Try again.");
   return j.result;
+}
+async function apiCall(fn, args){
+  const tries = RETRY_SAFE[fn] ? 3 : 1;
+  for (let i = 1; ; i++){
+    try { return await apiOnce(fn, args); }
+    catch(e){ if (!e.retry || i >= tries) throw e; await new Promise(res => setTimeout(res, 1200 * i)); }
+  }
 }
 function call(fn, ...args){
   if (API) return apiCall(fn, args);
@@ -328,7 +350,8 @@ const Demo = (function(){
   const day = 864e5;
   const iso = d => { const x = new Date(d); return x.getFullYear()+"-"+String(x.getMonth()+1).padStart(2,"0")+"-"+String(x.getDate()).padStart(2,"0"); };
   const ago = n => iso(Date.now() - n*day);
-  const settings = { m1Tasks:10, m1Reward:20, m2Tasks:20, m2Reward:20, spPct:.05, spDays:30, tiers:[
+  const settings = { m1Tasks:10, m1Reward:20, m2Tasks:20, m2Reward:20, spPct:.05, spDays:30,
+    projects:["General Multilingual Rubrics","GMR 2","GMR 3","ASR Training Set Project","Multilingual Caption Annotation","Dola","LMArena GRM","VLM Ranking","VLM Education","Multilingual Trajectory SFT","Evaluation Project 3.0"], tiers:[
     {tier:"Tier 1",cap:100,roles:"STEM, Medical, Software, Domain SMEs"},
     {tier:"Tier 2",cap:150,roles:"Adv. Math, Sciences, Clinical/Pharma, Coding, ML"},
     {tier:"Tier 3",cap:200,roles:"Security, Agentic Coding, ML Research, Quant, Legal"}]};
@@ -341,8 +364,8 @@ const Demo = (function(){
     {"id": "AG-0005", "name": "E. Alvarez", "aoEmail": "ealvarez@agentsonly.com", "personalEmail": "", "status": "Active", "notes": ""},
     {"id": "AG-0006", "name": "Eden Magallanes", "aoEmail": "", "personalEmail": "memagallanes@gmail.com", "status": "Active", "notes": ""},
   ];
-  const R = (id,date,rE,rN,dN,dE,program,tier,role,status,q,qa,bs,earn,notes) =>
-    ({id,date,referrerEmail:rE,referrerName:rN,referredName:dN,referredEmail:dE,program,tier,role,status,qualifiedDate:q,qaTasks:qa,billableStart:bs,earnings30:earn,notes:notes||""});
+  const R = (id,date,rE,rN,dN,dE,program,tier,role,status,q,qa,bs,earn,notes,fin) =>
+    ({id,date,referrerEmail:rE,referrerName:rN,referredName:dN,referredEmail:dE,program,tier,role,status,qualifiedDate:q,qaTasks:qa,billableStart:bs,earnings30:earn,notes:notes||"",finance:fin||"",projects:[]});
   let referrals = [
     R("REF-0001","2026-07-05","bsamarista@agentsonly.com","B. Samarista","Carla Mendoza","carla.mendoza@example.com","Specialist Talent","Tier 1","Software","Active","2026-07-09",null,"2026-07-14",2600,"Scenario 1: Specialist earned, hit the Tier 1 cap, fully paid"),
     R("REF-0002","2026-07-08","mar.quint@hotmail.com","M. Quint","Mark Garcia","mark.garcia@example.com","Specialist Talent","Tier 2","Coding (Python)","Active","2026-07-12",null,"2026-07-17",3900,"Scenario 1: Specialist earned, hit the Tier 2 cap, fully paid"),
@@ -425,6 +448,24 @@ const Demo = (function(){
     {"id": "PAY-0011", "referralId": "REF-0007", "date": "2026-08-30", "amount": 150, "method": "PayPal", "reference": "TX-10807", "recordedBy": "admin@agentsonly.com"},
     {"id": "PAY-0012", "referralId": "REF-0009", "date": "2026-09-02", "amount": 200, "method": "GCash", "reference": "TX-10844", "recordedBy": "admin@agentsonly.com"},
   ];
+  // FAQ demo seeding: generalists also get a first billable task date (30-day validation applies to both programs),
+  // and Finance has approved the scenarios that are paid or due (scenario 4 is left awaiting Finance review).
+  referrals.forEach(r => {
+    if (r.program === "Data & AI Talent" && r.qualifiedDate && !r.billableStart) r.billableStart = iso(new Date(r.qualifiedDate).getTime() + 3*day);
+    const n = Number((String(r.notes).match(/^Scenario (\d+)/)||[])[1]);
+    if ([1,2,3].includes(n)) r.finance = "Approved";
+    if (n === 10) r.status = "Rejected";
+    // Demo projects: some referred people work on more than one project.
+    if (r.status !== "Submitted" && r.status !== "Not Qualified" && r.status !== "Rejected") {
+      const k = Number(r.id.slice(-3));
+      const pool = r.program === "Specialist Talent" ? ["VLM Education", "Multilingual Trajectory SFT", "LMArena GRM", "Evaluation Project 3.0"]
+                                                    : ["GMR 2", "General Multilingual Rubrics", "ASR Training Set Project", "VLM Ranking", "Multilingual Caption Annotation", "Dola"];
+      r.projects = [pool[k % pool.length]];
+      if (k % 2 === 0) r.projects.push(pool[(k + 2) % pool.length]);
+      if (k % 5 === 0) r.projects.push(pool[(k + 4) % pool.length]);
+      r.projects = r.projects.filter((x, i, a) => a.indexOf(x) === i);
+    }
+  });
   const sessions = {}; let pending = null;
   const norm = e => String(e||"").trim().toLowerCase();
   const isEmail = e => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e);
@@ -443,25 +484,34 @@ const Demo = (function(){
   const cap = tier => (settings.tiers.find(x => x.tier===tier)||{cap:0}).cap;
   function computed(){
     const today = new Date(iso(Date.now())).getTime();
-    return referrals.map((r,i) => {
+    const out = [];
+    referrals.forEach((r,i) => {
       const own = emailsOf(r.referrerEmail);
       let validation = "OK";
       if (norm(r.referredEmail)===norm(r.referrerEmail) || own.includes(norm(r.referredEmail))) validation = "Self-referral";
-      else if (referrals.slice(0,i).some(x => norm(x.referredEmail)===norm(r.referredEmail))) validation = "Duplicate";
-      const daysActive = r.billableStart ? Math.min(settings.spDays, Math.max(0, Math.round((today - new Date(r.billableStart).getTime())/day))) : null;
+      else if (out.some(x => norm(x.referredEmail)===norm(r.referredEmail) && x.validation!=="Self-referral")) validation = "Duplicate";
+      else if (r.status === "Already in pipeline") validation = "Already in pipeline";
+      const D = settings.spDays;
+      const daysActive = r.billableStart ? Math.min(D, Math.max(0, Math.round((today - new Date(r.billableStart).getTime())/day))) : null;
       const accrued = Math.min((r.earnings30||0)*settings.spPct, cap(r.tier));
-      const progress = r.program==="Data & AI Talent" ? Math.min(r.qaTasks||0, settings.m2Tasks)+" of "+settings.m2Tasks+" QA-approved tasks"
-        : (!r.billableStart ? "Awaiting billable work" : "Day "+daysActive+" of "+settings.spDays+" \u00b7 accrued $"+accrued.toFixed(2));
+      const progress = r.program==="Data & AI Talent" ? Math.min(r.qaTasks||0, settings.m2Tasks)+" of "+settings.m2Tasks+" QA-approved tasks"+(r.billableStart ? " - day "+daysActive+" of "+D : "")
+        : r.program==="Specialist Talent" ? (!r.billableStart ? "Awaiting first billable task" : "Day "+daysActive+" of "+D+" - accrued $"+accrued.toFixed(2))
+        : "Program to be confirmed by Sourcing";
       let reward = 0;
-      if (validation==="OK" && r.qualifiedDate && !["Submitted","Not Qualified","Rejected"].includes(r.status)){
+      if (validation==="OK" && r.qualifiedDate && ["Qualified","Active","Left before 30 days"].includes(r.status)){
         if (r.program==="Data & AI Talent") reward = (r.qaTasks||0)>=settings.m2Tasks ? settings.m1Reward+settings.m2Reward : (r.qaTasks||0)>=settings.m1Tasks ? settings.m1Reward : 0;
-        else reward = (daysActive||0)>=settings.spDays ? Math.round(accrued*100)/100 : 0;
+        else if (r.program==="Specialist Talent") reward = Math.round(accrued*100)/100;
       }
+      const validated = !!r.billableStart && (daysActive||0)>=D && r.status!=="Left before 30 days";
       const paid = payouts.filter(p => p.referralId===r.id).reduce((s,p) => s+p.amount, 0);
-      const balance = reward - paid;
-      const paymentStatus = validation!=="OK" ? "Not eligible" : reward===0 ? "Not yet earned" : balance<=0 ? "Paid" : paid>0 ? "Partially paid" : "Due";
-      return Object.assign({}, r, {daysActive, validation, progress, reward, paid, balance, paymentStatus});
+      const balance = validated && r.finance==="Approved" ? reward - paid : 0;
+      const paymentStatus = validation!=="OK" || ["Not Qualified","Rejected"].includes(r.status) ? "Not eligible"
+        : reward===0 ? "Not yet earned" : r.status==="Left before 30 days" ? "Not validated" : !validated ? "Pending 30-day validation"
+        : r.finance==="Rejected" ? "Not eligible" : r.finance==="On hold" ? "On hold" : r.finance!=="Approved" ? "Awaiting Finance review"
+        : balance<=0 ? "Paid" : paid>0 ? "Partially paid" : "Due";
+      out.push(Object.assign({}, r, {daysActive, validation, progress, reward, paid, balance, paymentStatus}));
     });
+    return out;
   }
   function data(t){
     const w = session(t), refs = computed();
@@ -495,6 +545,7 @@ const Demo = (function(){
     getPortalData: data,
     submitReferral(t, f){
       const w = session(t);
+      if (!w.isAdmin) throw new Error("Referrals are submitted in the AO Platform (Referral section). They will appear here once recorded.");
       const dN = String(f.referredName||"").trim(), dE = norm(f.referredEmail), program = f.program, tier = program==="Specialist Talent" ? f.tier : "";
       if (!dN) throw new Error("Enter the referred person's full name.");
       if (!isEmail(dE)) throw new Error("Enter the referred person's email address.");
@@ -505,11 +556,13 @@ const Demo = (function(){
       if (rEmails.includes(dE)) throw new Error("Self-referrals are not allowed. The referred email belongs to the referrer.");
       if (referrals.some(r => norm(r.referredEmail)===dE)) throw new Error("This person has already been referred. The first referrer receives credit.");
       referrals.push(R(nextId(referrals,"REF-"), iso(Date.now()), rE, rN, dN, dE, program, tier, String(f.role||""), "Submitted", "", null, "", null, w.isAdmin ? f.notes : ""));
+      referrals[referrals.length-1].projects = projList(f.projects);
       return data(t);
     },
     updateReferral(t, id, p){
       admin(t); const r = referrals.find(x => x.id===id); if (!r) throw new Error("Referral not found.");
-      for (const k of ["program","tier","status","role","referredName","notes","qualifiedDate","billableStart"]) if (k in p) r[k] = p[k]||"";
+      for (const k of ["program","tier","status","role","referredName","notes","qualifiedDate","billableStart","finance"]) if (k in p) r[k] = p[k]||"";
+      if ("projects" in p) r.projects = projList(p.projects);
       if ("referredEmail" in p){ if (!isEmail(norm(p.referredEmail))) throw new Error("Referred email is not valid."); r.referredEmail = norm(p.referredEmail); }
       for (const k of ["qaTasks","earnings30"]) if (k in p) r[k] = p[k]===""||p[k]==null ? null : Number(p[k]);
       if ((p.status==="Qualified"||p.status==="Active") && !r.qualifiedDate) r.qualifiedDate = iso(Date.now());
@@ -577,24 +630,36 @@ const fdate = s => { if (!s) return "\u2014"; const d = new Date(s+"T00:00:00");
 const todayIso = () => { const d = new Date(); return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0"); };
 const first = n => String(n||"").split(" ")[0];
 const isDA = r => r.program === "Data & AI Talent";
-const qualified = r => !!r.qualifiedDate && (r.status === "Qualified" || r.status === "Active");
+const qualified = r => !!r.qualifiedDate && ["Qualified","Active","Left before 30 days"].includes(r.status);
+const STATUSES = ["Submitted","Qualified","Active","Not Qualified","Rejected","Already in pipeline","Left before 30 days"];
+const PAY_STATES = ["Due","Partially paid","Paid","Awaiting Finance review","On hold","Pending 30-day validation","Not yet earned","Not validated","Flagged"];
 const tierCap = t => ((S.data.settings.tiers||[]).find(x => x.tier===t)||{cap:0}).cap;
 const sum = (a, k) => a.reduce((s, x) => s + (Number(x[k])||0), 0);
 
+const projList = v => (Array.isArray(v) ? v : String(v||"").split(/[;,\n]/)).map(x => String(x).trim()).filter(Boolean);
+function projChips(r){ const p = projList(r.projects); return p.length ? `<span class="projs" aria-label="Project${p.length>1?"s":""}">${p.map(x => `<span class="proj">${esc(x)}</span>`).join("")}</span>` : ""; }
+function projPicker(id, cur){
+  const opts = ((S.data && S.data.settings && S.data.settings.projects) || []), sel = projList(cur), lc = x => x.toLowerCase();
+  if (!opts.length) return `<input id="${id}" class="input" placeholder="e.g. GMR 2, VLM Ranking" value="${esc(sel.join(", "))}">`;
+  const all = opts.concat(sel.filter(x => !opts.some(o => lc(o)===lc(x))));
+  return `<div class="projpick" id="${id}" role="group" aria-label="Projects">${all.map(o => `<label class="pp"><input type="checkbox" value="${esc(o)}" ${sel.some(x => lc(x)===lc(o))?"checked":""}><span>${esc(o)}</span></label>`).join("")}</div>`;
+}
+const projVal = id => { const g = document.getElementById(id); if (!g) return ""; if (g.tagName==="INPUT") return g.value; return [...g.querySelectorAll("input:checked")].map(i => i.value).join(", "); };
 function progPill(r){
   return isDA(r) ? '<span class="pill nodot p-blue">Data &amp; AI</span>'
     : '<span class="pill nodot p-green">Specialist' + (r.tier ? " \u00b7 " + esc(r.tier) : "") + "</span>";
 }
 function statusPill(s){
-  const m = {"Submitted":"p-amber","Qualified":"p-teal","Active":"p-teal","Not Qualified":"","Rejected":"p-red"};
+  const m = {"Submitted":"p-amber","Qualified":"p-teal","Active":"p-teal","Not Qualified":"","Rejected":"p-red","Already in pipeline":"p-red","Left before 30 days":"p-red"};
   return '<span class="pill ' + (m[s]||"") + '">' + esc(s||"Submitted") + "</span>";
 }
 function payPill(s){
-  const m = {"Paid":"p-teal","Partially paid":"p-blue","Due":"p-amber","Not eligible":"p-red","Not yet earned":""};
+  const m = {"Paid":"p-teal","Partially paid":"p-blue","Due":"p-amber","Not eligible":"p-red","Not yet earned":"","Pending 30-day validation":"","Awaiting Finance review":"p-blue","On hold":"p-amber","Not validated":"p-red"};
   return '<span class="pill ' + (m[s]||"") + '">' + esc(s||"Not yet earned") + "</span>";
 }
 function flagText(r){
-  if (r.validation === "Duplicate") return "Not eligible: this person was already referred by someone else. The first referrer receives credit.";
+  if (r.validation === "Duplicate") return "Not eligible: this person was already referred. The first valid referral recorded in AO receives credit.";
+  if (r.validation === "Already in pipeline") return "Not eligible: this candidate was already in the pipeline, so it doesn't count as a new referral.";
   if (r.validation === "Self-referral") return "Not eligible: self-referrals are not allowed.";
   return "";
 }
@@ -753,34 +818,39 @@ function viewShell(inner){
 
 /* ---------- milestone track ---------- */
 function track(r){
-  const st = S.data.settings;
+  const st = S.data.settings, D = st.spDays;
+  if (!r.program) return `<div class="flag" style="background:var(--grey-soft);color:var(--ink-2)">Sourcing will confirm the program and tier for this referral.</div>`;
+  const q = qualified(r), started = !!r.billableStart, days = r.daysActive||0;
+  const validated = started && days>=D && r.status!=="Left before 30 days";
+  const dayTxt = started ? "Day "+Math.min(days,D)+" of "+D : "Not started";
   if (isDA(r)){
-    const t = r.qaTasks||0, q = qualified(r);
+    const t = r.qaTasks||0;
     const steps = [
       {l:"Qualifies", a:"$0", d:q},
       {l:st.m1Tasks+" QA-approved tasks", a:money(st.m1Reward), d:q && t>=st.m1Tasks},
       {l:st.m2Tasks+" QA-approved tasks", a:"+"+money(st.m2Reward), d:q && t>=st.m2Tasks},
+      {l:"Active "+D+" days", a:validated?"Validated":dayTxt, d:q && validated},
     ];
     const pct = Math.min(100, t/st.m2Tasks*100);
     return `<div class="track">
-      <div class="steps" style="--n:3">${steps.map(s => `<div class="step ${s.d?"done":""}"><span class="s-l">${esc(s.l)}</span><span class="s-a">${s.a}</span></div>`).join("")}</div>
+      <div class="steps" style="--n:4">${steps.map(s => `<div class="step ${s.d?"done":""}"><span class="s-l">${esc(s.l)}</span><span class="s-a">${esc(s.a)}</span></div>`).join("")}</div>
       <div class="bar" role="img" aria-label="${t} of ${st.m2Tasks} tasks"><i style="width:${pct}%"></i></div>
-      <div class="bar-l"><span class="num">${Math.min(t,st.m2Tasks)} of ${st.m2Tasks} QA-approved tasks</span><span>Max ${money(st.m1Reward+st.m2Reward)}</span></div>
+      <div class="bar-l"><span class="num">${Math.min(t,st.m2Tasks)} of ${st.m2Tasks} QA-approved tasks</span><span>Paid after ${D} days of billable work \u00b7 max ${money(st.m1Reward+st.m2Reward)}</span></div>
     </div>`;
   }
-  const cap = tierCap(r.tier), q = qualified(r), started = !!r.billableStart, days = r.daysActive||0;
+  const cap = tierCap(r.tier);
   const accrued = Math.min((r.earnings30||0)*st.spPct, cap);
   const steps = [
     {l:"Qualifies", a:q?"Done":"Pending", d:q},
-    {l:"Billable work", a:started?"Since "+fdate(r.billableStart):"Not started", d:q && started},
-    {l:"Active "+st.spDays+" days", a:started?("Day "+days+" of "+st.spDays):"\u2014", d:q && started && days>=st.spDays},
-    {l:"Earn "+Math.round(st.spPct*100)+"%", a:r.reward>0?money2(r.reward):"Up to "+money(cap), d:r.reward>0},
+    {l:"First billable task", a:started?fdate(r.billableStart):"Not started", d:q && started},
+    {l:"Active "+D+" days", a:validated?"Validated":dayTxt, d:q && validated},
+    {l:"Earn "+Math.round(st.spPct*100)+"%", a:r.reward>0?money2(r.reward):"Up to "+money(cap), d:q && validated && r.reward>0},
   ];
-  const pct = started ? Math.min(100, days/st.spDays*100) : 0;
+  const pct = started ? Math.min(100, days/D*100) : 0;
   return `<div class="track">
     <div class="steps" style="--n:4">${steps.map(s => `<div class="step ${s.d?"done":""}"><span class="s-l">${esc(s.l)}</span><span class="s-a" style="font-size:13.5px">${esc(s.a)}</span></div>`).join("")}</div>
-    <div class="bar" role="img" aria-label="Day ${days} of ${st.spDays}"><i style="width:${pct}%"></i></div>
-    <div class="bar-l"><span class="num">${started ? `Accrued so far: ${money2(accrued)}` : "Reward starts accruing once billable work begins"}</span><span>${esc(r.tier||"Tier not set")} cap ${money(cap)}</span></div>
+    <div class="bar" role="img" aria-label="Day ${days} of ${D}"><i style="width:${pct}%"></i></div>
+    <div class="bar-l"><span class="num">${started ? `Accrued so far: ${money2(accrued)}` : "The 30-day clock starts on the first billable task"}</span><span>${esc(r.tier||"Tier to be confirmed")} cap ${money(cap)}</span></div>
   </div>`;
 }
 
@@ -792,7 +862,7 @@ function viewAgent(){
   const earned = sum(refs,"reward"), paid = sum(refs,"paid"), due = refs.reduce((s,r) => s + Math.max(0, r.balance||0), 0);
   const F = S.agentFilter;
   const shown = refs.filter(r => F==="all" ? true
-    : F==="progress" ? (r.validation==="OK" && !["Not Qualified","Rejected"].includes(r.status) && !(isDA(r) ? (r.qaTasks||0)>=d.settings.m2Tasks && qualified(r) : r.reward>0))
+    : F==="progress" ? ["Not yet earned","Pending 30-day validation","Awaiting Finance review","On hold"].includes(r.paymentStatus)
     : F==="earned" ? r.reward>0 : r.paymentStatus==="Paid");
   const segs = [["all","All"],["progress","In progress"],["earned","Earned"],["paid","Paid"]];
   const others = me.emails.filter(e => e!==me.email);
@@ -803,7 +873,7 @@ function viewAgent(){
     <div class="head">
       <div><h1>Hi, ${esc(first(me.name)||"there")}</h1>
         <p class="sub muted">${others.length ? `Referrals made with <b>${esc(me.email)}</b> or <b>${others.map(esc).join("</b>, <b>")}</b> show up here.` : "Your referrals and rewards, updated as your referrals deliver."}</p></div>
-      <button class="btn primary lg" data-act="open-refer">Refer someone</button>
+      <button class="btn primary lg" data-act="open-howto">Refer someone</button>
     </div>
     <div class="stats">
       <div class="card stat"><span class="l">Referrals</span><span class="v">${refs.length}</span></div>
@@ -820,17 +890,17 @@ function viewAgent(){
             <div class="rcard-top">
               <div style="display:grid;gap:4px;min-width:0">
                 <span class="rcard-name">${esc(r.referredName)}</span>
-                <div class="rcard-meta">${progPill(r)}<span>${esc(r.role||"")}</span><span class="faint">Referred ${fdate(r.date)}</span></div>
+                <div class="rcard-meta">${progPill(r)}<span>${esc(r.role||"")}</span>${projChips(r)}<span class="faint">Referred ${fdate(r.date)}</span></div>
               </div>
               <div class="pills">${statusPill(r.status)}${payPill(r.paymentStatus)}</div>
             </div>
-            ${flagText(r) ? `<div class="flag">${esc(flagText(r))}</div>` : r.status==="Not Qualified"||r.status==="Rejected" ? `<div class="flag">This referral did not qualify, so no reward applies.</div>` : track(r)}
+            ${flagText(r) ? `<div class="flag">${esc(flagText(r))}</div>` : r.status==="Not Qualified"||r.status==="Rejected" ? `<div class="flag">This referral did not qualify, so no reward applies.</div>` : r.status==="Left before 30 days" ? `<div class="flag">Not validated: the referee stopped before ${S.data.settings.spDays} days of billable work, so no reward is paid.</div>` : track(r)}
             <div class="rcard-foot">
               <span>Earned <b>${money2(r.reward)}</b></span><span>Paid <b>${money2(r.paid)}</b></span><span>Balance <b>${money2(Math.max(0,r.balance))}</b></span>
               <span class="mono faint" style="margin-left:auto">${esc(r.id)}</span>
             </div>
           </article>`).join("")
-        : `<div class="card empty">${refs.length ? "No referrals match this filter." : "You haven't referred anyone yet. Use <b>Refer someone</b> to add your first referral."}</div>`}
+        : `<div class="card empty">${refs.length ? "No referrals match this filter." : "No referrals yet. Referrals you submit in the AO Platform appear here once they're recorded."}</div>`}
       </div>
     </section>
     ${pays.length ? `<section class="section"><h2>Payment history</h2>
@@ -842,32 +912,34 @@ function viewAgent(){
 }
 
 function viewRules(){
-  const st = S.data.settings;
+  const st = S.data.settings, D = st.spDays;
   return `<section class="section">
     <h2>How rewards work</h2>
     <div class="cols2">
       <div class="card panel">
-        <div class="section-h"><h3>Data &amp; AI Talent / Agents</h3><span class="pill nodot p-blue">Up to ${money(st.m1Reward+st.m2Reward)}</span></div>
-        <p class="muted" style="font-size:14px">Two milestones, ${money(st.m1Reward)} each. Quality tasks unlock every reward.</p>
-        <div class="steps" style="--n:3">
-          <div class="step"><span class="s-l">Qualifies</span><span class="s-a">$0</span></div>
+        <div class="section-h"><h3>Generalists \u00b7 Data &amp; AI Talent</h3><span class="pill nodot p-blue">Up to ${money(st.m1Reward+st.m2Reward)}</span></div>
+        <p class="muted" style="font-size:14px">Rewards are tied to completed, QA-approved tasks, and paid once the referee stays active for ${D} days of billable work.</p>
+        <div class="steps" style="--n:4">
+          <div class="step"><span class="s-l">Passes qualification</span><span class="s-a">No payout</span></div>
           <div class="step"><span class="s-l">${st.m1Tasks} QA-approved tasks</span><span class="s-a">${money(st.m1Reward)}</span></div>
           <div class="step"><span class="s-l">${st.m2Tasks} QA-approved tasks</span><span class="s-a">+${money(st.m2Reward)}</span></div>
+          <div class="step"><span class="s-l">Active ${D} days</span><span class="s-a">Validated &amp; paid</span></div>
         </div>
       </div>
       <div class="card panel">
-        <div class="section-h"><h3>Specialist Talent</h3><span class="pill nodot p-green">${Math.round(st.spPct*100)}% of first ${st.spDays}-day earnings</span></div>
-        <p class="muted" style="font-size:14px">Qualifies \u2192 billable work \u2192 active ${st.spDays} days \u2192 earn ${Math.round(st.spPct*100)}%, capped by tier.</p>
+        <div class="section-h"><h3>Specialists</h3><span class="pill nodot p-green">${Math.round(st.spPct*100)}% of first ${D}-day earnings</span></div>
+        <p class="muted" style="font-size:14px">${Math.round(st.spPct*100)}% of QA-approved or billable earnings in the first ${D} days of production, capped by tier. The ${D}-day clock starts on the first billable task. Sourcing confirms the tier.</p>
         <div class="tiers">${st.tiers.map(t => `<div class="tier"><span class="eyebrow">${esc(t.tier)}</span><span class="cap">${money(t.cap)}</span><span class="roles">${esc(t.roles)}</span></div>`).join("")}</div>
       </div>
     </div>
     <div class="rules">
-      <div class="rule"><div><b>No reward for sign-up alone</b>Your referral has to qualify and deliver.</div></div>
-      <div class="rule"><div><b>QA-approved work required</b>Only approved tasks count toward milestones.</div></div>
-      <div class="rule"><div><b>First referrer receives credit</b>If two people refer the same person, the first one counts.</div></div>
-      <div class="rule"><div><b>No self-referrals or duplicates</b>Fraudulent referrals are removed.</div></div>
-      <div class="rule"><div><b>Reward tier is based on role</b>The referred person's role sets the program and tier.</div></div>
+      <div class="rule"><div><b>Submit in the AO Platform</b>Open the Referral section in AO and submit the candidate's details.</div></div>
+      <div class="rule"><div><b>No reward for signup or hire</b>Generalists must reach QA-approved milestones; specialists must begin billable work.</div></div>
+      <div class="rule"><div><b>${D}-day validation</b>Both programs need ${D} days of billable work before a reward is paid.</div></div>
+      <div class="rule"><div><b>First valid referral counts</b>If two people refer the same candidate, the first valid referral recorded in AO gets credit.</div></div>
+      <div class="rule"><div><b>Paid monthly</b>After Sourcing confirms the milestone or tier and Finance validates the work. Cutoff and payment date are shared in AO.</div></div>
     </div>
+    <p class="faint" style="font-size:13px">Questions about a payment? Contact the Sourcing or Finance support team.</p>
   </section>`;
 }
 
@@ -896,6 +968,8 @@ function adminOverview(){
   const earned = sum(R,"reward"), paid = sum(R,"paid"), due = R.reduce((s,r) => s+Math.max(0,r.balance||0), 0);
   const flagged = R.filter(r => r.validation && r.validation!=="OK");
   const pending = R.filter(r => r.status==="Submitted" && r.validation==="OK");
+  const finReview = R.filter(r => r.paymentStatus==="Awaiting Finance review" || r.paymentStatus==="On hold");
+  const pendingVal = R.filter(r => r.paymentStatus==="Pending 30-day validation");
   const owing = R.filter(r => (r.balance||0) > 0);
   const progs = ["Data & AI Talent","Specialist Talent"].map(p => { const x = R.filter(r => r.program===p); return {p, n:x.length, q:x.filter(qualified).length, e:sum(x,"reward"), due:x.reduce((s,r)=>s+Math.max(0,r.balance||0),0)}; });
   const maxN = Math.max(1, ...progs.map(p => p.n));
@@ -922,7 +996,11 @@ function adminOverview(){
         ${progs.map(p => `<div class="split-row"><div class="top"><span>${p.p==="Data & AI Talent" ? progPill({program:p.p}) : '<span class="pill nodot p-green">Specialist</span>'}</span><span class="num muted">${p.n} referrals \u00b7 ${p.q} qualified \u00b7 <b style="color:var(--ink)">${money(p.e)}</b> earned</span></div>
           <div class="bar"><i style="width:${p.n/maxN*100}%;background:${p.p==="Data & AI Talent"?"var(--blue)":"var(--green)"}"></i></div></div>`).join("")}
       </div></div>
-      ${attn(flagged, "Flagged: duplicates and self-referrals", r => r.validation)}
+      ${attn(flagged, "Flagged: duplicates, self-referrals, already in pipeline", r => r.validation)}
+    </div>
+    <div class="cols2">
+      ${attn(finReview, "Awaiting Finance review", r => money2(r.reward)+" \u00b7 "+(r.finance==="On hold"?"on hold":"validated, not yet approved"))}
+      ${attn(pendingVal, "Pending "+d.settings.spDays+"-day validation", r => r.progress)}
     </div>
     <section class="section"><h2>Top referrers</h2>
       <div class="card tbl-wrap"><table><thead><tr><th>Referrer</th><th class="r">Referrals</th><th class="r">Earned</th><th class="r">Balance due</th></tr></thead><tbody>
@@ -933,21 +1011,21 @@ function adminOverview(){
 function adminReferrals(){
   const d = S.data, f = S.f, q = f.q.trim().toLowerCase();
   const list = d.referrals.slice().reverse().filter(r =>
-    (!q || [r.id,r.referredName,r.referredEmail,r.referrerName,r.referrerEmail,r.role].join(" ").toLowerCase().includes(q)) &&
+    (!q || [r.id,r.referredName,r.referredEmail,r.referrerName,r.referrerEmail,r.role,projList(r.projects).join(" ")].join(" ").toLowerCase().includes(q)) &&
     (!f.program || r.program===f.program) && (!f.status || r.status===f.status) &&
     (!f.payment || (f.payment==="Flagged" ? r.validation!=="OK" : r.paymentStatus===f.payment)));
   const opt = (v, cur, l) => `<option value="${esc(v)}" ${v===cur?"selected":""}>${esc(l||v)}</option>`;
   return `
     <div class="toolbar">
-      <input id="q" class="input" type="search" placeholder="Search name, email, ID or role" value="${esc(f.q)}" aria-label="Search referrals">
+      <input id="q" class="input" type="search" placeholder="Search name, email, ID, role or project" value="${esc(f.q)}" aria-label="Search referrals">
       <select id="fp" class="input" aria-label="Program">${opt("",f.program,"All programs")}${opt("Data & AI Talent",f.program)}${opt("Specialist Talent",f.program)}</select>
       <select id="fs" class="input" aria-label="Status">${opt("",f.status,"All statuses")}${["Submitted","Qualified","Active","Not Qualified","Rejected"].map(s => opt(s,f.status)).join("")}</select>
-      <select id="fy" class="input" aria-label="Payment">${opt("",f.payment,"All payments")}${["Due","Partially paid","Paid","Not yet earned","Flagged"].map(s => opt(s,f.payment)).join("")}</select>
+      <select id="fy" class="input" aria-label="Payment">${opt("",f.payment,"All payments")}${PAY_STATES.map(s => opt(s,f.payment)).join("")}</select>
     </div>
     <div class="card tbl-wrap"><table>
       <thead><tr><th>Referred</th><th>Referrer</th><th>Program</th><th>Status</th><th>Progress</th><th class="r">Earned</th><th class="r">Balance</th><th>Payment</th></tr></thead>
       <tbody>${list.map(r => `<tr class="click" data-act="open-ref" data-id="${esc(r.id)}" tabindex="0">
-        <td><b>${esc(r.referredName)}</b><span class="cell-2">${esc(r.referredEmail)}</span><span class="cell-2 mono">${esc(r.id)} \u00b7 ${fdate(r.date)}</span></td>
+        <td><b>${esc(r.referredName)}</b><span class="cell-2">${esc(r.referredEmail)}</span><span class="cell-2 mono">${esc(r.id)} \u00b7 ${fdate(r.date)}</span>${projList(r.projects).length ? `<div class="cell-projs">${projChips(r)}</div>` : ""}</td>
         <td>${esc(r.referrerName)}<span class="cell-2">${esc(r.referrerEmail)}</span></td>
         <td>${progPill(r)}</td>
         <td>${statusPill(r.status)}${r.validation && r.validation!=="OK" ? `<div style="margin-top:4px"><span class="pill p-red">${esc(r.validation)}</span></div>` : ""}</td>
@@ -1035,11 +1113,13 @@ function viewDrawer(){
           <div class="field"><label for="e-program">Program</label><select id="e-program" class="input">${opt("Data & AI Talent",r.program)}${opt("Specialist Talent",r.program)}</select></div>
           <div class="field"><label for="e-tier">Specialist tier</label><select id="e-tier" class="input"><option value="">\u2014</option>${d.settings.tiers.map(t => `<option value="${esc(t.tier)}" ${t.tier===r.tier?"selected":""}>${esc(t.tier)} \u00b7 ${money(t.cap)} cap</option>`).join("")}</select></div>
           <div class="field"><label for="e-role">Role / skill</label><input id="e-role" class="input" value="${esc(r.role)}"></div>
-          <div class="field"><label for="e-status">Status</label><select id="e-status" class="input">${["Submitted","Qualified","Active","Not Qualified","Rejected"].map(s => opt(s,r.status)).join("")}</select></div>
+          <div class="field" style="grid-column:1/-1"><span class="lbl" id="e-proj-l" style="font-size:13px;font-weight:600;color:var(--ink-2)">Project(s)</span>${projPicker("e-proj", r.projects)}<span class="hint">Pick one or more. The list is in the sheet's Settings tab (column K).</span></div>
+          <div class="field"><label for="e-status">Status</label><select id="e-status" class="input">${STATUSES.map(s => opt(s,r.status)).join("")}</select></div>
           <div class="field"><label for="e-qdate">Qualified date</label><input id="e-qdate" class="input" type="date" value="${esc(r.qualifiedDate)}"><span class="hint">Set automatically when you mark it Qualified.</span></div>
           <div class="field" ${isDA(r)?"":"hidden"}><label for="e-qa">QA-approved tasks</label><input id="e-qa" class="input" type="number" min="0" step="1" value="${r.qaTasks==null?"":r.qaTasks}"></div>
-          <div class="field" ${isDA(r)?"hidden":""}><label for="e-bs">Billable start date</label><input id="e-bs" class="input" type="date" value="${esc(r.billableStart)}"></div>
+          <div class="field"><label for="e-bs">First billable task date</label><input id="e-bs" class="input" type="date" value="${esc(r.billableStart)}"><span class="hint">Starts the ${d.settings.spDays}-day validation clock.</span></div>
           <div class="field" ${isDA(r)?"hidden":""}><label for="e-earn">First 30-day earnings ($)</label><input id="e-earn" class="input" type="number" min="0" step="0.01" value="${r.earnings30==null?"":r.earnings30}"></div>
+          <div class="field"><label for="e-fin">Finance validation</label><select id="e-fin" class="input"><option value="">Not reviewed</option>${["Approved","On hold","Rejected"].map(s => opt(s,r.finance)).join("")}</select><span class="hint">Only Approved rewards become Due.</span></div>
         </div>
         <div class="field"><label for="e-notes">Internal notes</label><textarea id="e-notes" class="input" placeholder="Visible to admins only">${esc(r.notes)}</textarea></div>
         <div style="display:flex;gap:10px;justify-content:space-between;flex-wrap:wrap">
@@ -1064,6 +1144,22 @@ function viewDrawer(){
 /* ---------- modals ---------- */
 function viewModal(){
   const d = S.data, m = S.modal, me = d.me;
+  if (m.type === "howto"){
+    const url = String(CONFIG.AO_REFERRAL_URL || "").trim();
+    return `<div class="scrim center" data-act="close-overlay"><div class="modal" role="dialog" aria-modal="true" aria-labelledby="mt" data-stop>
+      <div class="modal-h"><h2 id="mt">Refer someone</h2><button type="button" class="btn sm" data-act="close-overlay">Close</button></div>
+      <div class="modal-b">
+        <p>Referrals are submitted in the <b>AO Platform</b>. They appear here once they're recorded, so you can track milestones and payments.</p>
+        <div class="steps" style="--n:3">
+          <div class="step"><span class="s-l">1 \u00b7 Submit</span><span class="s-a" style="font-size:13.5px;font-weight:600">Open the Referral section in AO and enter the candidate's details</span></div>
+          <div class="step"><span class="s-l">2 \u00b7 Qualify</span><span class="s-a" style="font-size:13.5px;font-weight:600">The candidate completes sourcing, assessment and project qualification</span></div>
+          <div class="step"><span class="s-l">3 \u00b7 Track and earn</span><span class="s-a" style="font-size:13.5px;font-weight:600">Follow progress here; rewards follow the milestones and ${d.settings.spDays}-day validation</span></div>
+        </div>
+        <p class="faint" style="font-size:12.5px">Refer people in your network who meet the requirements for an open DAL opportunity.</p>
+      </div>
+      <div class="modal-f">${url ? `<a class="btn primary" href="${esc(url)}" target="_blank" rel="noopener">Open the AO Platform</a>` : ""}<button type="button" class="btn" data-act="close-overlay">Close</button></div>
+    </div></div>`;
+  }
   if (m.type === "refer"){
     const st = d.settings, v = m.v || {};
     const activeAgents = (d.agents||[]).filter(a => a.status!=="Inactive");
@@ -1086,6 +1182,7 @@ function viewModal(){
         <div class="field" id="tier-field" ${v.program==="Specialist Talent"?"":"hidden"}><label for="r-tier">Specialist tier (based on their role)</label>
           <select id="r-tier" class="input"><option value="">Choose a tier</option>${st.tiers.map(t => `<option value="${esc(t.tier)}" ${v.tier===t.tier?"selected":""}>${esc(t.tier)} \u00b7 up to ${money(t.cap)} \u00b7 ${esc(t.roles)}</option>`).join("")}</select></div>
         <div class="field"><label for="r-role">Role or skill</label><input id="r-role" class="input" placeholder="e.g. Annotation, Clinical/Pharma, Security" value="${esc(v.role||"")}"></div>
+        <div class="field"><span style="font-size:13px;font-weight:600;color:var(--ink-2)">Project(s) <span class="faint">(optional, pick one or more)</span></span>${projPicker("r-proj", v.projects)}</div>
         ${me.isAdmin ? `<div class="field"><label for="r-notes">Internal notes</label><textarea id="r-notes" class="input">${esc(v.notes||"")}</textarea></div>` : ""}
         <p class="faint" style="font-size:12.5px">Refer someone you trust to deliver quality work. Rewards unlock only after they qualify and complete QA-approved or billable work.</p>
       </div>
@@ -1132,7 +1229,7 @@ function render(){
 const val = id => { const el = document.getElementById(id); return el ? el.value : ""; };
 function readReferForm(){
   const prog = (document.querySelector('input[name="r-prog"]:checked')||{}).value || "Data & AI Talent";
-  return { referrerEmail: val("r-referrer"), referredName: val("r-name"), referredEmail: val("r-email"), program: prog, tier: prog==="Specialist Talent" ? val("r-tier") : "", role: val("r-role"), notes: val("r-notes") };
+  return { referrerEmail: val("r-referrer"), referredName: val("r-name"), referredEmail: val("r-email"), program: prog, tier: prog==="Specialist Talent" ? val("r-tier") : "", role: val("r-role"), projects: projVal("r-proj"), notes: val("r-notes") };
 }
 
 document.addEventListener("click", async e => {
@@ -1152,6 +1249,7 @@ document.addEventListener("click", async e => {
     case "signout": signOutLocal(""); break;
     case "afilter": S.agentFilter = t.dataset.v; render(); break;
     case "tab": S.tab = t.dataset.v; S.error = ""; render(); break;
+    case "open-howto": S.modal = { type:"howto" }; render(); break;
     case "open-refer": S.modal = { type:"refer", v:{} }; S.error = ""; render(); setTimeout(() => { const i = $(S.data.me.isAdmin ? "#r-referrer" : "#r-name"); i && i.focus(); }, 20); break;
     case "open-agent": S.modal = { type:"agent", id:t.dataset.id||null }; S.error = ""; render(); break;
     case "open-ref": S.drawer = t.dataset.id; S.error = ""; render(); break;
@@ -1182,7 +1280,7 @@ document.addEventListener("change", e => {
   if (id === "fs"){ S.f.status = v; render(); }
   if (id === "fy"){ S.f.payment = v; render(); }
   if (e.target.name === "r-prog"){ S.modal.v = readReferForm(); render(); }
-  if (id === "e-program"){ const sp = v === "Specialist Talent"; ["e-qa"].forEach(x => $("#"+x).closest(".field").hidden = sp); ["e-bs","e-earn"].forEach(x => $("#"+x).closest(".field").hidden = !sp); }
+  if (id === "e-program"){ const sp = v === "Specialist Talent"; $("#e-qa").closest(".field").hidden = sp; $("#e-earn").closest(".field").hidden = !sp; }
 });
 
 document.addEventListener("submit", async e => {
@@ -1201,8 +1299,9 @@ document.addEventListener("submit", async e => {
   }
   if (id === "f-ref"){
     const sp = val("e-program") === "Specialist Talent";
-    const patch = { referredName:val("e-name"), referredEmail:val("e-email"), program:val("e-program"), tier: sp ? val("e-tier") : "", role:val("e-role"), status:val("e-status"), qualifiedDate:val("e-qdate"), notes:val("e-notes") };
-    if (sp){ patch.billableStart = val("e-bs"); patch.earnings30 = val("e-earn"); } else { patch.qaTasks = val("e-qa"); }
+    const patch = { referredName:val("e-name"), referredEmail:val("e-email"), program:val("e-program"), tier: sp ? val("e-tier") : "", role:val("e-role"), projects:projVal("e-proj"), status:val("e-status"), qualifiedDate:val("e-qdate"), notes:val("e-notes") };
+    patch.billableStart = val("e-bs"); patch.finance = val("e-fin");
+    if (sp){ patch.earnings30 = val("e-earn"); } else { patch.qaTasks = val("e-qa"); }
     if (sp && !patch.tier){ showError("Choose a specialist tier."); return; }
     await mutate("updateReferral", [S.drawer, patch], "Referral updated", () => { S.error = ""; });
   }
